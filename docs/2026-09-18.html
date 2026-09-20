@@ -74,9 +74,16 @@ table.mini{font-size:12px;margin-top:8px}
 .tabs label small{display:block;font-weight:400;font-size:11px;color:var(--mut)}
 input[name=tb]{display:none}
 .tab{display:none}
-#t-short:checked~.body #tab-short,#t-swing:checked~.body #tab-swing,#t-long:checked~.body #tab-long{display:block}
-#t-short:checked~.tabs label[for=t-short],#t-swing:checked~.tabs label[for=t-swing],#t-long:checked~.tabs label[for=t-long]{background:var(--acc);color:#fff;border-color:var(--acc)}
-#t-short:checked~.tabs label[for=t-short] small,#t-swing:checked~.tabs label[for=t-swing] small,#t-long:checked~.tabs label[for=t-long] small{color:#c9ced8}
+#t-short:checked~.body #tab-short,#t-swing:checked~.body #tab-swing,#t-long:checked~.body #tab-long,#t-book:checked~.body #tab-book{display:block}
+#t-short:checked~.tabs label[for=t-short],#t-swing:checked~.tabs label[for=t-swing],#t-long:checked~.tabs label[for=t-long],#t-book:checked~.tabs label[for=t-book]{background:var(--acc);color:#fff;border-color:var(--acc)}
+#t-short:checked~.tabs label[for=t-short] small,#t-swing:checked~.tabs label[for=t-swing] small,#t-long:checked~.tabs label[for=t-long] small,#t-book:checked~.tabs label[for=t-book] small{color:#c9ced8}
+.card.note p{margin:0 0 8px;font-size:13px;line-height:1.7}
+.card.note{background:#fbfcfe}
+.hw{border-radius:8px;padding:9px 11px;font-size:12.5px}
+.hw.on{background:#e7f6ec;color:#12662f}.hw.off{background:#fdf0ec;color:#a0400f}
+.mutp{color:var(--mut);font-size:11.5px}
+.bar{display:inline-block;height:9px;background:#2b6cf6;border-radius:3px;min-width:2px;vertical-align:middle}
+.lead h2{margin-top:26px}
 footer{margin-top:36px;font-size:11.5px;color:var(--mut);line-height:1.8;border-top:1px solid var(--line);padding-top:14px}
 </style></head><body><div id="qdnav">
   <b>퀀트 브리핑</b>
@@ -96,7 +103,7 @@ footer{margin-top:36px;font-size:11.5px;color:var(--mut);line-height:1.8;border-
 </style><div class="wrap">
 <header>
   <h1>퀀트 브리핑</h1>
-  <p>2026.09.18 장 마감 기준 · 분석 920종목 / 상장 2,580종목 · 백테스트 2022.05.24~2026.03.26 · 823,394 종목-일 · 생성 2026. 9. 20. PM 9:29:14</p>
+  <p>2026.09.18 장 마감 기준 · 분석 913종목 / 상장 2,553종목 · 백테스트 2022.05.24~2026.03.26 · 823,394 종목-일 · 생성 2026. 9. 20. PM 9:55:42</p>
 </header>
 
 <h2>시장 온도계</h2>
@@ -136,11 +143,12 @@ footer{margin-top:36px;font-size:11.5px;color:var(--mut);line-height:1.8;border-
           <div class="nw"><a href="https://n.news.naver.com/mnews/article/003/0014203047" target="_blank">2026년은 라스트 댄스 …미국 국채 금리, 구조적으로 오를 수밖에 없...</a> <i>뉴시스</i></div>
         </div></div>
 
-<input type="radio" name="tb" id="t-short"><input type="radio" name="tb" id="t-swing" checked><input type="radio" name="tb" id="t-long">
+<input type="radio" name="tb" id="t-short"><input type="radio" name="tb" id="t-swing" checked><input type="radio" name="tb" id="t-long"><input type="radio" name="tb" id="t-book">
 <div class="tabs">
   <label for="t-short">단타<small>1~3거래일</small></label>
   <label for="t-swing">스윙<small>약 1개월</small></label>
   <label for="t-long">장투<small>약 6개월</small></label>
+  <label for="t-book">퀀트 포트폴리오<small>책 기반 · 분기 리밸런싱</small></label>
 </div>
 <div class="body"><div class="tab" id="tab-short">
         <div class="lead"><h2>단타 <small>1~3거래일 보유 기준</small></h2></div>
@@ -2254,6 +2262,2062 @@ footer{margin-top:36px;font-size:11.5px;color:var(--mut);line-height:1.8;border-
         <td class="n">2.3x</td>
         <td><span class="past good">70회 · 승률 70%</span></td>
       </tr></tbody></table></div>
+      </section>
+      </div><div class="tab" id="tab-book">
+        <div class="lead"><h2>퀀트 포트폴리오 <small>국내 퀀트 저자들의 공식을 오늘 데이터로 돌린 결과</small></h2></div>
+        <section class="card note">
+          <p><b>이 탭은 앞의 3개 탭과 성격이 다릅니다.</b> 단타·스윙·장투 탭은 "오늘 이런 신호가 뗄다"는 시그널이고,
+          여기는 <b>순위 상위 20~30종목을 한꺼번에 사서 분산 보유하고 정해진 주기마다 교체</b>하는 방식입니다.
+          종목 하나하나가 아니라 <b>묶음 전체의 평균</b>으로 수익을 내는 구조라, 몇 종목만 골라 사면 전략이 성립하지 않습니다.</p>
+          <p class="hw off"><b>비수기 (5~10월)</b> · 과거 통계상 수익률이 낮았던 구간. Sell in May 격언의 근거. 비중을 줄이거나 보수적으로 보는 것도 방법.</p>
+          <p class="mutp">투자가능 풀 1,181종목 (시총 300억 이상 · 20일 평균 거래대금 3억 이상 · 부채비율 400% 이하 · 지주사·리츠·우선주·스팩 제외) ·
+          소형주 = 시총 하위 20% (1,015억 이하) 237종목</p>
+        </section>
+        <section class="card">
+        <h3>신마법공식 1.0<span class="cnt">상위 30종목</span></h3>
+        <p class="origin">강환국 『할 수 있다! 퀀트투자』 · 저PBR 순위 + 고 OP/A 순위 합산 · 리밸런싱 분기~반기 1회 · 후보군 758종목</p>
+        <p class="why">그린블랫의 마법공식(ROC+EV/EBIT)이 한국에서 잘 안 먹혀서, 밸류 지표 1개 + 퀄리티 지표 1개로 단순화한 버전. 싼 가격(저PBR)과 돈 잘 버는 능력(고 수익성)을 동시에 본다.</p>
+        <p class="caution">주의 · 원전략은 GP/A(매출총이익/자산)이다. 무료 데이터로 매출원가를 못 받아 영업이익/자산(OP/A)으로 대체했다. 저자 백테스트와 수치가 다를 수 있다.</p>
+        <div class="tw"><table>
+          <thead><tr><th>#</th><th>종목</th><th class="n">종가</th><th class="n">1일</th><th class="n">시총</th><th class="n">PBR</th><th class="n">OP/A</th></tr></thead>
+          <tbody><tr>
+            <td class="mut">1</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=001390" target="_blank">KG케미칼</a><span class="cd">001390 · 코스피</span></td>
+            <td class="n">4,375</td>
+            <td class="n dn">-1.0%</td>
+            <td class="n">2,905억</td>
+            <td class="n">0.28</td><td class="n">+11.5%</td>
+            
+          </tr><tr>
+            <td class="mut">2</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=019180" target="_blank">티에이치엔</a><span class="cd">019180 · 코스피</span></td>
+            <td class="n">5,020</td>
+            <td class="n dn">-0.2%</td>
+            <td class="n">904억</td>
+            <td class="n">0.33</td><td class="n">+11.5%</td>
+            
+          </tr><tr>
+            <td class="mut">3</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=088130" target="_blank">동아엘텍</a><span class="cd">088130 · 코스닥</span></td>
+            <td class="n">5,880</td>
+            <td class="n up">+1.6%</td>
+            <td class="n">1,028억</td>
+            <td class="n">0.52</td><td class="n">+17.6%</td>
+            
+          </tr><tr>
+            <td class="mut">4</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=037460" target="_blank">삼지전자</a><span class="cd">037460 · 코스닥</span></td>
+            <td class="n">31,350</td>
+            <td class="n up">+2.5%</td>
+            <td class="n">5,116억</td>
+            <td class="n">0.65</td><td class="n">+30.4%</td>
+            
+          </tr><tr>
+            <td class="mut">5</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=136490" target="_blank">선진</a><span class="cd">136490 · 코스피</span></td>
+            <td class="n">10,230</td>
+            <td class="n up">+0.3%</td>
+            <td class="n">2,433억</td>
+            <td class="n">0.39</td><td class="n">+12.2%</td>
+            
+          </tr><tr>
+            <td class="mut">6</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=284740" target="_blank">쿠쿠홈시스</a><span class="cd">284740 · 코스피</span></td>
+            <td class="n">23,700</td>
+            <td class="n dn">-1.0%</td>
+            <td class="n">5,318억</td>
+            <td class="n">0.47</td><td class="n">+12.8%</td>
+            
+          </tr><tr>
+            <td class="mut">7</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=255440" target="_blank">야스</a><span class="cd">255440 · 코스닥</span></td>
+            <td class="n">6,890</td>
+            <td class="n up">+4.4%</td>
+            <td class="n">900억</td>
+            <td class="n">0.49</td><td class="n">+12.1%</td>
+            
+          </tr><tr>
+            <td class="mut">8</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=008060" target="_blank">대덕</a><span class="cd">008060 · 코스피</span></td>
+            <td class="n">14,240</td>
+            <td class="n dn">-1.3%</td>
+            <td class="n">4,455억</td>
+            <td class="n">0.73</td><td class="n">+21.0%</td>
+            
+          </tr><tr>
+            <td class="mut">9</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=078930" target="_blank">GS</a><span class="cd">078930 · 코스피</span></td>
+            <td class="n">114,000</td>
+            <td class="n dn">-0.2%</td>
+            <td class="n">10.6조</td>
+            <td class="n">0.66</td><td class="n">+16.0%</td>
+            
+          </tr><tr>
+            <td class="mut">10</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=035460" target="_blank">기산텔레콤</a><span class="cd">035460 · 코스닥</span></td>
+            <td class="n">2,695</td>
+            <td class="n up">+3.9%</td>
+            <td class="n">402억</td>
+            <td class="n">0.67</td><td class="n">+16.3%</td>
+            
+          </tr><tr>
+            <td class="mut">11</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=036090" target="_blank">위지트</a><span class="cd">036090 · 코스닥</span></td>
+            <td class="n">1,363</td>
+            <td class="n dn">-0.9%</td>
+            <td class="n">580억</td>
+            <td class="n">0.38</td><td class="n">+9.1%</td>
+            
+          </tr><tr>
+            <td class="mut">12</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=001040" target="_blank">CJ</a><span class="cd">001040 · 코스피</span></td>
+            <td class="n">127,500</td>
+            <td class="n dn">-2.7%</td>
+            <td class="n">3.7조</td>
+            <td class="n">0.79</td><td class="n">+18.1%</td>
+            
+          </tr><tr>
+            <td class="mut">13</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=012800" target="_blank">대창</a><span class="cd">012800 · 코스피</span></td>
+            <td class="n">1,199</td>
+            <td class="n up">+0.3%</td>
+            <td class="n">1,093억</td>
+            <td class="n">0.32</td><td class="n">+8.1%</td>
+            
+          </tr><tr>
+            <td class="mut">14</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=099410" target="_blank">동방선기</a><span class="cd">099410 · 코스닥</span></td>
+            <td class="n">3,245</td>
+            <td class="n up">+1.4%</td>
+            <td class="n">454억</td>
+            <td class="n">0.84</td><td class="n">+19.1%</td>
+            
+          </tr><tr>
+            <td class="mut">15</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=900290" target="_blank">GRT</a><span class="cd">900290 · 코스닥</span></td>
+            <td class="n">3,425</td>
+            <td class="n dn">-2.4%</td>
+            <td class="n">3,177억</td>
+            <td class="n">0.25</td><td class="n">+7.3%</td>
+            
+          </tr><tr>
+            <td class="mut">16</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=012630" target="_blank">HDC</a><span class="cd">012630 · 코스피</span></td>
+            <td class="n">26,550</td>
+            <td class="n dn">-2.0%</td>
+            <td class="n">1.6조</td>
+            <td class="n">0.41</td><td class="n">+8.7%</td>
+            
+          </tr><tr>
+            <td class="mut">17</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=015230" target="_blank">대창단조</a><span class="cd">015230 · 코스피</span></td>
+            <td class="n">6,720</td>
+            <td class="n up">+0.9%</td>
+            <td class="n">1,824억</td>
+            <td class="n">0.49</td><td class="n">+9.5%</td>
+            
+          </tr><tr>
+            <td class="mut">18</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=210540" target="_blank">디와이파워</a><span class="cd">210540 · 코스피</span></td>
+            <td class="n">11,300</td>
+            <td class="n up">+0.8%</td>
+            <td class="n">1,248억</td>
+            <td class="n">0.37</td><td class="n">+8.3%</td>
+            
+          </tr><tr>
+            <td class="mut">19</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=194700" target="_blank">노바렉스</a><span class="cd">194700 · 코스닥</span></td>
+            <td class="n">10,350</td>
+            <td class="n up">+1.6%</td>
+            <td class="n">1,889억</td>
+            <td class="n">0.68</td><td class="n">+12.6%</td>
+            
+          </tr><tr>
+            <td class="mut">20</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=031330" target="_blank">에스에이엠티</a><span class="cd">031330 · 코스닥</span></td>
+            <td class="n">8,340</td>
+            <td class="n up">+0.5%</td>
+            <td class="n">8,340억</td>
+            <td class="n">0.98</td><td class="n">+23.0%</td>
+            
+          </tr><tr>
+            <td class="mut">21</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=142210" target="_blank">유니트론텍</a><span class="cd">142210 · 코스닥</span></td>
+            <td class="n">6,100</td>
+            <td class="n up">+1.3%</td>
+            <td class="n">1,266억</td>
+            <td class="n">0.75</td><td class="n">+13.2%</td>
+            
+          </tr><tr>
+            <td class="mut">22</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=461300" target="_blank">아이스크림미디어</a><span class="cd">461300 · 코스닥</span></td>
+            <td class="n">18,390</td>
+            <td class="n dn">-1.1%</td>
+            <td class="n">2,452억</td>
+            <td class="n">0.98</td><td class="n">+22.2%</td>
+            
+          </tr><tr>
+            <td class="mut">23</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=215200" target="_blank">메가스터디교육</a><span class="cd">215200 · 코스닥</span></td>
+            <td class="n">34,950</td>
+            <td class="n up">+0.6%</td>
+            <td class="n">3,623억</td>
+            <td class="n">0.71</td><td class="n">+12.7%</td>
+            
+          </tr><tr>
+            <td class="mut">24</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=034310" target="_blank">NICE</a><span class="cd">034310 · 코스피</span></td>
+            <td class="n">12,060</td>
+            <td class="n dn">-0.5%</td>
+            <td class="n">4,433억</td>
+            <td class="n">0.57</td><td class="n">+10.3%</td>
+            
+          </tr><tr>
+            <td class="mut">25</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=187870" target="_blank">디바이스</a><span class="cd">187870 · 코스닥</span></td>
+            <td class="n">10,390</td>
+            <td class="n up">+1.0%</td>
+            <td class="n">1,440억</td>
+            <td class="n">0.80</td><td class="n">+14.5%</td>
+            
+          </tr><tr>
+            <td class="mut">26</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=192080" target="_blank">더블유게임즈</a><span class="cd">192080 · 코스피</span></td>
+            <td class="n">59,000</td>
+            <td class="n up">+0.3%</td>
+            <td class="n">1.2조</td>
+            <td class="n">0.86</td><td class="n">+16.2%</td>
+            
+          </tr><tr>
+            <td class="mut">27</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=035510" target="_blank">신세계 I&amp;C</a><span class="cd">035510 · 코스피</span></td>
+            <td class="n">15,830</td>
+            <td class="n up">+1.2%</td>
+            <td class="n">2,213억</td>
+            <td class="n">0.46</td><td class="n">+8.4%</td>
+            
+          </tr><tr>
+            <td class="mut">28</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=071320" target="_blank">지역난방공사</a><span class="cd">071320 · 코스피</span></td>
+            <td class="n">74,900</td>
+            <td class="n ">0.0%</td>
+            <td class="n">8,672억</td>
+            <td class="n">0.35</td><td class="n">+7.3%</td>
+            
+          </tr><tr>
+            <td class="mut">29</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=084110" target="_blank">휴온스글로벌</a><span class="cd">084110 · 코스닥</span></td>
+            <td class="n">22,000</td>
+            <td class="n dn">-2.4%</td>
+            <td class="n">2,785억</td>
+            <td class="n">0.48</td><td class="n">+8.4%</td>
+            
+          </tr><tr>
+            <td class="mut">30</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=163560" target="_blank">동일고무벨트</a><span class="cd">163560 · 코스피</span></td>
+            <td class="n">5,470</td>
+            <td class="n dn">-0.4%</td>
+            <td class="n">760억</td>
+            <td class="n">0.30</td><td class="n">+6.7%</td>
+            
+          </tr></tbody></table></div>
+      </section><section class="card">
+        <h3>신마법공식 2.0 (소형주)<span class="cnt">상위 30종목</span></h3>
+        <p class="origin">강환국 『할 수 있다! 퀀트투자』 · 시총 하위 20% 중 저PBR + 고 OP/A 순위 합산 · 리밸런싱 분기~반기 1회 · 후보군 87종목 (소형주 237종목 중)</p>
+        <p class="why">같은 공식을 소형주에만 적용. 책의 백테스트에서 소형주 제한을 걸었을 때 연복리가 크게 올라갔다. 기관·외국인이 못 건드리는 구간이라 비효율이 남아있다는 해석.</p>
+        <p class="caution">주의 · 소형주는 거래량이 적어 사고 팔 때 불리하다(슬리피지). 상장폐지·관리종목 위험도 높으니 반드시 분산하고 공시를 확인해야 한다.</p>
+        <div class="tw"><table>
+          <thead><tr><th>#</th><th>종목</th><th class="n">종가</th><th class="n">1일</th><th class="n">시총</th><th class="n">PBR</th><th class="n">OP/A</th></tr></thead>
+          <tbody><tr>
+            <td class="mut">1</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=019180" target="_blank">티에이치엔</a><span class="cd">019180 · 코스피</span></td>
+            <td class="n">5,020</td>
+            <td class="n dn">-0.2%</td>
+            <td class="n">904억</td>
+            <td class="n">0.33</td><td class="n">+11.5%</td>
+            
+          </tr><tr>
+            <td class="mut">2</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=036090" target="_blank">위지트</a><span class="cd">036090 · 코스닥</span></td>
+            <td class="n">1,363</td>
+            <td class="n dn">-0.9%</td>
+            <td class="n">580억</td>
+            <td class="n">0.38</td><td class="n">+9.1%</td>
+            
+          </tr><tr>
+            <td class="mut">3</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=255440" target="_blank">야스</a><span class="cd">255440 · 코스닥</span></td>
+            <td class="n">6,890</td>
+            <td class="n up">+4.4%</td>
+            <td class="n">900억</td>
+            <td class="n">0.49</td><td class="n">+12.1%</td>
+            
+          </tr><tr>
+            <td class="mut">4</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=163560" target="_blank">동일고무벨트</a><span class="cd">163560 · 코스피</span></td>
+            <td class="n">5,470</td>
+            <td class="n dn">-0.4%</td>
+            <td class="n">760억</td>
+            <td class="n">0.30</td><td class="n">+6.7%</td>
+            
+          </tr><tr>
+            <td class="mut">5</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=052900" target="_blank">KX하이텍</a><span class="cd">052900 · 코스닥</span></td>
+            <td class="n">1,048</td>
+            <td class="n up">+0.7%</td>
+            <td class="n">803억</td>
+            <td class="n">0.51</td><td class="n">+8.4%</td>
+            
+          </tr><tr>
+            <td class="mut">6</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=000220" target="_blank">유유제약</a><span class="cd">000220 · 코스피</span></td>
+            <td class="n">3,815</td>
+            <td class="n dn">-0.5%</td>
+            <td class="n">601억</td>
+            <td class="n">0.48</td><td class="n">+7.5%</td>
+            
+          </tr><tr>
+            <td class="mut">7</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=035460" target="_blank">기산텔레콤</a><span class="cd">035460 · 코스닥</span></td>
+            <td class="n">2,695</td>
+            <td class="n up">+3.9%</td>
+            <td class="n">402억</td>
+            <td class="n">0.67</td><td class="n">+16.3%</td>
+            
+          </tr><tr>
+            <td class="mut">8</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=008260" target="_blank">NI스틸</a><span class="cd">008260 · 코스피</span></td>
+            <td class="n">3,390</td>
+            <td class="n up">+3.4%</td>
+            <td class="n">970억</td>
+            <td class="n">0.35</td><td class="n">+5.4%</td>
+            
+          </tr><tr>
+            <td class="mut">9</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=053980" target="_blank">오상자이엘</a><span class="cd">053980 · 코스닥</span></td>
+            <td class="n">2,400</td>
+            <td class="n dn">-0.2%</td>
+            <td class="n">456억</td>
+            <td class="n">0.40</td><td class="n">+5.8%</td>
+            
+          </tr><tr>
+            <td class="mut">10</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=003310" target="_blank">대주산업</a><span class="cd">003310 · 코스닥</span></td>
+            <td class="n">1,665</td>
+            <td class="n up">+1.4%</td>
+            <td class="n">589억</td>
+            <td class="n">0.52</td><td class="n">+7.2%</td>
+            
+          </tr><tr>
+            <td class="mut">11</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=099410" target="_blank">동방선기</a><span class="cd">099410 · 코스닥</span></td>
+            <td class="n">3,245</td>
+            <td class="n up">+1.4%</td>
+            <td class="n">454억</td>
+            <td class="n">0.84</td><td class="n">+19.1%</td>
+            
+          </tr><tr>
+            <td class="mut">12</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=052420" target="_blank">오성첨단소재</a><span class="cd">052420 · 코스닥</span></td>
+            <td class="n">9,790</td>
+            <td class="n up">+1.2%</td>
+            <td class="n">954억</td>
+            <td class="n">0.21</td><td class="n">+2.9%</td>
+            
+          </tr><tr>
+            <td class="mut">13</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=037030" target="_blank">파워넷</a><span class="cd">037030 · 코스닥</span></td>
+            <td class="n">3,870</td>
+            <td class="n up">+8.3%</td>
+            <td class="n">987억</td>
+            <td class="n">0.64</td><td class="n">+7.7%</td>
+            
+          </tr><tr>
+            <td class="mut">14</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=002140" target="_blank">고려산업</a><span class="cd">002140 · 코스피</span></td>
+            <td class="n">1,994</td>
+            <td class="n dn">-2.0%</td>
+            <td class="n">497억</td>
+            <td class="n">0.41</td><td class="n">+4.7%</td>
+            
+          </tr><tr>
+            <td class="mut">15</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=475430" target="_blank">키스트론</a><span class="cd">475430 · 코스닥</span></td>
+            <td class="n">4,385</td>
+            <td class="n up">+2.7%</td>
+            <td class="n">783억</td>
+            <td class="n">0.40</td><td class="n">+4.0%</td>
+            
+          </tr><tr>
+            <td class="mut">16</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=041930" target="_blank">SY동아</a><span class="cd">041930 · 코스닥</span></td>
+            <td class="n">5,020</td>
+            <td class="n up">+0.7%</td>
+            <td class="n">763억</td>
+            <td class="n">0.38</td><td class="n">+3.7%</td>
+            
+          </tr><tr>
+            <td class="mut">17</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=033320" target="_blank">제이씨현시스템</a><span class="cd">033320 · 코스닥</span></td>
+            <td class="n">3,150</td>
+            <td class="n up">+1.6%</td>
+            <td class="n">602억</td>
+            <td class="n">0.50</td><td class="n">+4.9%</td>
+            
+          </tr><tr>
+            <td class="mut">18</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=002800" target="_blank">신신제약</a><span class="cd">002800 · 코스닥</span></td>
+            <td class="n">4,495</td>
+            <td class="n up">+0.7%</td>
+            <td class="n">682억</td>
+            <td class="n">0.86</td><td class="n">+10.3%</td>
+            
+          </tr><tr>
+            <td class="mut">19</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=049480" target="_blank">오픈베이스</a><span class="cd">049480 · 코스닥</span></td>
+            <td class="n">1,980</td>
+            <td class="n up">+1.7%</td>
+            <td class="n">622억</td>
+            <td class="n">0.59</td><td class="n">+5.8%</td>
+            
+          </tr><tr>
+            <td class="mut">20</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=310200" target="_blank">애니플러스</a><span class="cd">310200 · 코스닥</span></td>
+            <td class="n">1,937</td>
+            <td class="n up">+0.8%</td>
+            <td class="n">1,010억</td>
+            <td class="n">0.83</td><td class="n">+9.2%</td>
+            
+          </tr><tr>
+            <td class="mut">21</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=105740" target="_blank">디케이락</a><span class="cd">105740 · 코스닥</span></td>
+            <td class="n">7,970</td>
+            <td class="n up">+0.9%</td>
+            <td class="n">810억</td>
+            <td class="n">0.58</td><td class="n">+5.6%</td>
+            
+          </tr><tr>
+            <td class="mut">22</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=042500" target="_blank">링네트</a><span class="cd">042500 · 코스닥</span></td>
+            <td class="n">4,255</td>
+            <td class="n dn">-0.1%</td>
+            <td class="n">948억</td>
+            <td class="n">0.76</td><td class="n">+7.6%</td>
+            
+          </tr><tr>
+            <td class="mut">23</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=055490" target="_blank">테이팩스</a><span class="cd">055490 · 코스피</span></td>
+            <td class="n">15,110</td>
+            <td class="n dn">-0.2%</td>
+            <td class="n">723억</td>
+            <td class="n">0.45</td><td class="n">+3.6%</td>
+            
+          </tr><tr>
+            <td class="mut">24</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=006090" target="_blank">사조오양</a><span class="cd">006090 · 코스피</span></td>
+            <td class="n">8,820</td>
+            <td class="n dn">-0.5%</td>
+            <td class="n">831억</td>
+            <td class="n">0.33</td><td class="n">+2.5%</td>
+            
+          </tr><tr>
+            <td class="mut">25</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=000850" target="_blank">화천기공</a><span class="cd">000850 · 코스피</span></td>
+            <td class="n">38,750</td>
+            <td class="n up">+0.9%</td>
+            <td class="n">853억</td>
+            <td class="n">0.24</td><td class="n">+2.3%</td>
+            
+          </tr><tr>
+            <td class="mut">26</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=036010" target="_blank">아비코전자</a><span class="cd">036010 · 코스닥</span></td>
+            <td class="n">7,070</td>
+            <td class="n up">+0.1%</td>
+            <td class="n">940억</td>
+            <td class="n">0.75</td><td class="n">+6.4%</td>
+            
+          </tr><tr>
+            <td class="mut">27</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=010960" target="_blank">삼호개발</a><span class="cd">010960 · 코스피</span></td>
+            <td class="n">3,110</td>
+            <td class="n up">+1.1%</td>
+            <td class="n">750억</td>
+            <td class="n">0.29</td><td class="n">+2.1%</td>
+            
+          </tr><tr>
+            <td class="mut">28</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=184230" target="_blank">SGA솔루션즈</a><span class="cd">184230 · 코스닥</span></td>
+            <td class="n">2,290</td>
+            <td class="n up">+4.6%</td>
+            <td class="n">431억</td>
+            <td class="n">1.28</td><td class="n">+18.3%</td>
+            
+          </tr><tr>
+            <td class="mut">29</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=318160" target="_blank">셀바이오휴먼텍</a><span class="cd">318160 · 코스닥</span></td>
+            <td class="n">7,390</td>
+            <td class="n up">+5.4%</td>
+            <td class="n">690억</td>
+            <td class="n">0.99</td><td class="n">+9.7%</td>
+            
+          </tr><tr>
+            <td class="mut">30</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=083500" target="_blank">에프엔에스테크</a><span class="cd">083500 · 코스닥</span></td>
+            <td class="n">11,350</td>
+            <td class="n up">+1.0%</td>
+            <td class="n">943억</td>
+            <td class="n">0.98</td><td class="n">+9.0%</td>
+            
+          </tr></tbody></table></div>
+      </section><section class="card">
+        <h3>슈퍼가치 전략<span class="cnt">상위 30종목</span></h3>
+        <p class="origin">강환국 『할 수 있다! 퀀트투자』 · 시총 하위 20% 중 PER·PBR·PSR·POR 4지표 순위 합산 · 리밸런싱 연 1회 (7월) · 후보군 88종목 (소형주 237종목 중)</p>
+        <p class="why">밸류 지표는 시기마다 잘 듣는 게 다르니 하나만 보지 말고 여러 개를 섞으라는 아이디어. 한 지표가 망가져도 나머지가 받쳐준다.</p>
+        <p class="caution">주의 · 원전략은 PCR(시총/영업현금흐름)을 쓴다. 현금흐름표를 못 받아 POR(시총/영업이익)로 대체했다.</p>
+        <div class="tw"><table>
+          <thead><tr><th>#</th><th>종목</th><th class="n">종가</th><th class="n">1일</th><th class="n">시총</th><th class="n">PER</th><th class="n">PBR</th><th class="n">PSR</th><th class="n">POR</th></tr></thead>
+          <tbody><tr>
+            <td class="mut">1</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=019180" target="_blank">티에이치엔</a><span class="cd">019180 · 코스피</span></td>
+            <td class="n">5,020</td>
+            <td class="n dn">-0.2%</td>
+            <td class="n">904억</td>
+            <td class="n">1.19</td><td class="n">0.33</td><td class="n">0.08</td><td class="n">1.15</td>
+            
+          </tr><tr>
+            <td class="mut">2</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=163560" target="_blank">동일고무벨트</a><span class="cd">163560 · 코스피</span></td>
+            <td class="n">5,470</td>
+            <td class="n dn">-0.4%</td>
+            <td class="n">760억</td>
+            <td class="n">2.95</td><td class="n">0.30</td><td class="n">0.20</td><td class="n">3.03</td>
+            
+          </tr><tr>
+            <td class="mut">3</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=900340" target="_blank">윙입푸드</a><span class="cd">900340 · 코스닥</span></td>
+            <td class="n">1,333</td>
+            <td class="n dn">-0.5%</td>
+            <td class="n">474억</td>
+            <td class="n">5.64</td><td class="n">0.06</td><td class="n">0.25</td><td class="n">3.36</td>
+            
+          </tr><tr>
+            <td class="mut">4</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=041930" target="_blank">SY동아</a><span class="cd">041930 · 코스닥</span></td>
+            <td class="n">5,020</td>
+            <td class="n up">+0.7%</td>
+            <td class="n">763억</td>
+            <td class="n">4.44</td><td class="n">0.38</td><td class="n">0.19</td><td class="n">6.20</td>
+            
+          </tr><tr>
+            <td class="mut">5</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=008260" target="_blank">NI스틸</a><span class="cd">008260 · 코스피</span></td>
+            <td class="n">3,390</td>
+            <td class="n up">+3.4%</td>
+            <td class="n">970억</td>
+            <td class="n">5.24</td><td class="n">0.35</td><td class="n">0.37</td><td class="n">3.20</td>
+            
+          </tr><tr>
+            <td class="mut">6</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=002140" target="_blank">고려산업</a><span class="cd">002140 · 코스피</span></td>
+            <td class="n">1,994</td>
+            <td class="n dn">-2.0%</td>
+            <td class="n">497억</td>
+            <td class="n">6.81</td><td class="n">0.41</td><td class="n">0.17</td><td class="n">3.60</td>
+            
+          </tr><tr>
+            <td class="mut">7</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=053980" target="_blank">오상자이엘</a><span class="cd">053980 · 코스닥</span></td>
+            <td class="n">2,400</td>
+            <td class="n dn">-0.2%</td>
+            <td class="n">456억</td>
+            <td class="n">4.00</td><td class="n">0.40</td><td class="n">0.35</td><td class="n">4.75</td>
+            
+          </tr><tr>
+            <td class="mut">8</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=000850" target="_blank">화천기공</a><span class="cd">000850 · 코스피</span></td>
+            <td class="n">38,750</td>
+            <td class="n up">+0.9%</td>
+            <td class="n">853억</td>
+            <td class="n">4.16</td><td class="n">0.24</td><td class="n">0.35</td><td class="n">8.20</td>
+            
+          </tr><tr>
+            <td class="mut">9</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=010960" target="_blank">삼호개발</a><span class="cd">010960 · 코스피</span></td>
+            <td class="n">3,110</td>
+            <td class="n up">+1.1%</td>
+            <td class="n">750억</td>
+            <td class="n">5.47</td><td class="n">0.29</td><td class="n">0.19</td><td class="n">9.49</td>
+            
+          </tr><tr>
+            <td class="mut">10</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=000220" target="_blank">유유제약</a><span class="cd">000220 · 코스피</span></td>
+            <td class="n">3,815</td>
+            <td class="n dn">-0.5%</td>
+            <td class="n">601억</td>
+            <td class="n">4.77</td><td class="n">0.48</td><td class="n">0.42</td><td class="n">4.55</td>
+            
+          </tr><tr>
+            <td class="mut">11</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=255440" target="_blank">야스</a><span class="cd">255440 · 코스닥</span></td>
+            <td class="n">6,890</td>
+            <td class="n up">+4.4%</td>
+            <td class="n">900억</td>
+            <td class="n">2.42</td><td class="n">0.49</td><td class="n">0.62</td><td class="n">2.53</td>
+            
+          </tr><tr>
+            <td class="mut">12</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=035460" target="_blank">기산텔레콤</a><span class="cd">035460 · 코스닥</span></td>
+            <td class="n">2,695</td>
+            <td class="n up">+3.9%</td>
+            <td class="n">402억</td>
+            <td class="n">3.56</td><td class="n">0.67</td><td class="n">0.40</td><td class="n">2.23</td>
+            
+          </tr><tr>
+            <td class="mut">13</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=052420" target="_blank">오성첨단소재</a><span class="cd">052420 · 코스닥</span></td>
+            <td class="n">9,790</td>
+            <td class="n up">+1.2%</td>
+            <td class="n">954억</td>
+            <td class="n">0.54</td><td class="n">0.21</td><td class="n">0.89</td><td class="n">5.78</td>
+            
+          </tr><tr>
+            <td class="mut">14</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=049480" target="_blank">오픈베이스</a><span class="cd">049480 · 코스닥</span></td>
+            <td class="n">1,980</td>
+            <td class="n up">+1.7%</td>
+            <td class="n">622억</td>
+            <td class="n">5.46</td><td class="n">0.59</td><td class="n">0.24</td><td class="n">5.50</td>
+            
+          </tr><tr>
+            <td class="mut">15</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=036090" target="_blank">위지트</a><span class="cd">036090 · 코스닥</span></td>
+            <td class="n">1,363</td>
+            <td class="n dn">-0.9%</td>
+            <td class="n">580억</td>
+            <td class="n">16.11</td><td class="n">0.38</td><td class="n">0.12</td><td class="n">2.46</td>
+            
+          </tr><tr>
+            <td class="mut">16</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=006090" target="_blank">사조오양</a><span class="cd">006090 · 코스피</span></td>
+            <td class="n">8,820</td>
+            <td class="n dn">-0.5%</td>
+            <td class="n">831억</td>
+            <td class="n">8.15</td><td class="n">0.33</td><td class="n">0.20</td><td class="n">7.42</td>
+            
+          </tr><tr>
+            <td class="mut">17</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=033320" target="_blank">제이씨현시스템</a><span class="cd">033320 · 코스닥</span></td>
+            <td class="n">3,150</td>
+            <td class="n up">+1.6%</td>
+            <td class="n">602억</td>
+            <td class="n">7.72</td><td class="n">0.50</td><td class="n">0.19</td><td class="n">7.92</td>
+            
+          </tr><tr>
+            <td class="mut">18</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=184230" target="_blank">SGA솔루션즈</a><span class="cd">184230 · 코스닥</span></td>
+            <td class="n">2,290</td>
+            <td class="n up">+4.6%</td>
+            <td class="n">431억</td>
+            <td class="n">2.68</td><td class="n">1.28</td><td class="n">0.33</td><td class="n">2.23</td>
+            
+          </tr><tr>
+            <td class="mut">19</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=038680" target="_blank">에스넷</a><span class="cd">038680 · 코스닥</span></td>
+            <td class="n">3,780</td>
+            <td class="n dn">-0.5%</td>
+            <td class="n">753억</td>
+            <td class="n">8.66</td><td class="n">0.65</td><td class="n">0.14</td><td class="n">5.84</td>
+            
+          </tr><tr>
+            <td class="mut">20</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=037030" target="_blank">파워넷</a><span class="cd">037030 · 코스닥</span></td>
+            <td class="n">3,870</td>
+            <td class="n up">+8.3%</td>
+            <td class="n">987억</td>
+            <td class="n">8.73</td><td class="n">0.64</td><td class="n">0.23</td><td class="n">4.68</td>
+            
+          </tr><tr>
+            <td class="mut">21</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=052900" target="_blank">KX하이텍</a><span class="cd">052900 · 코스닥</span></td>
+            <td class="n">1,048</td>
+            <td class="n up">+0.7%</td>
+            <td class="n">803억</td>
+            <td class="n">6.04</td><td class="n">0.51</td><td class="n">0.55</td><td class="n">4.32</td>
+            
+          </tr><tr>
+            <td class="mut">22</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=105740" target="_blank">디케이락</a><span class="cd">105740 · 코스닥</span></td>
+            <td class="n">7,970</td>
+            <td class="n up">+0.9%</td>
+            <td class="n">810억</td>
+            <td class="n">5.36</td><td class="n">0.58</td><td class="n">0.54</td><td class="n">6.09</td>
+            
+          </tr><tr>
+            <td class="mut">23</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=020710" target="_blank">시공테크</a><span class="cd">020710 · 코스닥</span></td>
+            <td class="n">3,735</td>
+            <td class="n dn">-0.8%</td>
+            <td class="n">749억</td>
+            <td class="n">2.61</td><td class="n">0.38</td><td class="n">0.58</td><td class="n">12.28</td>
+            
+          </tr><tr>
+            <td class="mut">24</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=008420" target="_blank">문배철강</a><span class="cd">008420 · 코스피</span></td>
+            <td class="n">2,195</td>
+            <td class="n up">+0.5%</td>
+            <td class="n">450억</td>
+            <td class="n">5.70</td><td class="n">0.23</td><td class="n">0.30</td><td class="n">21.43</td>
+            
+          </tr><tr>
+            <td class="mut">25</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=037440" target="_blank">희림</a><span class="cd">037440 · 코스닥</span></td>
+            <td class="n">4,220</td>
+            <td class="n dn">-0.2%</td>
+            <td class="n">588억</td>
+            <td class="n">7.84</td><td class="n">0.61</td><td class="n">0.25</td><td class="n">7.95</td>
+            
+          </tr><tr>
+            <td class="mut">26</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=054540" target="_blank">삼영엠텍</a><span class="cd">054540 · 코스닥</span></td>
+            <td class="n">6,710</td>
+            <td class="n dn">-1.3%</td>
+            <td class="n">872억</td>
+            <td class="n">5.85</td><td class="n">0.92</td><td class="n">0.27</td><td class="n">6.36</td>
+            
+          </tr><tr>
+            <td class="mut">27</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=002800" target="_blank">신신제약</a><span class="cd">002800 · 코스닥</span></td>
+            <td class="n">4,495</td>
+            <td class="n up">+0.7%</td>
+            <td class="n">682억</td>
+            <td class="n">5.05</td><td class="n">0.86</td><td class="n">0.55</td><td class="n">4.67</td>
+            
+          </tr><tr>
+            <td class="mut">28</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=009190" target="_blank">대양금속</a><span class="cd">009190 · 코스피</span></td>
+            <td class="n">1,148</td>
+            <td class="n up">+4.1%</td>
+            <td class="n">505억</td>
+            <td class="n">7.89</td><td class="n">0.64</td><td class="n">0.23</td><td class="n">8.56</td>
+            
+          </tr><tr>
+            <td class="mut">29</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=001260" target="_blank">남광토건</a><span class="cd">001260 · 코스피</span></td>
+            <td class="n">7,620</td>
+            <td class="n up">+0.4%</td>
+            <td class="n">749억</td>
+            <td class="n">13.38</td><td class="n">0.58</td><td class="n">0.22</td><td class="n">7.00</td>
+            
+          </tr><tr>
+            <td class="mut">30</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=099410" target="_blank">동방선기</a><span class="cd">099410 · 코스닥</span></td>
+            <td class="n">3,245</td>
+            <td class="n up">+1.4%</td>
+            <td class="n">454억</td>
+            <td class="n">3.95</td><td class="n">0.84</td><td class="n">1.00</td><td class="n">3.34</td>
+            
+          </tr></tbody></table></div>
+      </section><section class="card">
+        <h3>소형주 저PBR<span class="cnt">상위 30종목</span></h3>
+        <p class="origin">강환국 『할 수 있다! 퀀트투자』 · 시총 하위 20% 중 PBR 낮은 순 (하위 2% 제외) · 리밸런싱 반기~연 1회 · 후보군 233종목 (소형주 237종목 중)</p>
+        <p class="why">가장 오래된 밸류 팩터. 자산 대비 싼 주식을 사는 가장 단순한 방법이고, 한국 소형주에서 효과가 가장 세게 나타났다.</p>
+        <p class="caution">주의 · PBR 극하위 2%는 일부러 불다. 그 정도로 싸면 장부에 안 보이는 중대한 문제가 있을 가능성이 높다는 게 책의 지적이다.</p>
+        <div class="tw"><table>
+          <thead><tr><th>#</th><th>종목</th><th class="n">종가</th><th class="n">1일</th><th class="n">시총</th><th class="n">PBR</th><th class="n">ROE</th><th class="n">부채비율</th></tr></thead>
+          <tbody><tr>
+            <td class="mut">1</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=210980" target="_blank">SK디앤디</a><span class="cd">210980 · 코스피</span></td>
+            <td class="n">3,645</td>
+            <td class="n dn">-2.4%</td>
+            <td class="n">679억</td>
+            <td class="n">0.14</td><td class="n">-16.9%</td><td class="n">220%</td>
+            
+          </tr><tr>
+            <td class="mut">2</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=950130" target="_blank">엑세스바이오</a><span class="cd">950130 · 코스닥</span></td>
+            <td class="n">2,320</td>
+            <td class="n dn">-5.5%</td>
+            <td class="n">816억</td>
+            <td class="n">0.15</td><td class="n">-20.8%</td><td class="n">15%</td>
+            
+          </tr><tr>
+            <td class="mut">3</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=008250" target="_blank">이건산업</a><span class="cd">008250 · 코스피</span></td>
+            <td class="n">3,070</td>
+            <td class="n dn">-2.5%</td>
+            <td class="n">336억</td>
+            <td class="n">0.17</td><td class="n">-6.6%</td><td class="n">111%</td>
+            
+          </tr><tr>
+            <td class="mut">4</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=082850" target="_blank">우리바이오</a><span class="cd">082850 · 코스닥</span></td>
+            <td class="n">4,695</td>
+            <td class="n dn">-0.3%</td>
+            <td class="n">455억</td>
+            <td class="n">0.21</td><td class="n">+1.6%</td><td class="n">232%</td>
+            
+          </tr><tr>
+            <td class="mut">5</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=052420" target="_blank">오성첨단소재</a><span class="cd">052420 · 코스닥</span></td>
+            <td class="n">9,790</td>
+            <td class="n up">+1.2%</td>
+            <td class="n">954억</td>
+            <td class="n">0.21</td><td class="n">+38.8%</td><td class="n">23%</td>
+            
+          </tr><tr>
+            <td class="mut">6</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=214330" target="_blank">금호에이치티</a><span class="cd">214330 · 코스피</span></td>
+            <td class="n">6,700</td>
+            <td class="n up">+2.1%</td>
+            <td class="n">701억</td>
+            <td class="n">0.22</td><td class="n">-5.3%</td><td class="n">37%</td>
+            
+          </tr><tr>
+            <td class="mut">7</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=006370" target="_blank">대구백화점</a><span class="cd">006370 · 코스피</span></td>
+            <td class="n">3,155</td>
+            <td class="n dn">-1.4%</td>
+            <td class="n">341억</td>
+            <td class="n">0.23</td><td class="n">-21.9%</td><td class="n">240%</td>
+            
+          </tr><tr>
+            <td class="mut">8</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=008420" target="_blank">문배철강</a><span class="cd">008420 · 코스피</span></td>
+            <td class="n">2,195</td>
+            <td class="n up">+0.5%</td>
+            <td class="n">450억</td>
+            <td class="n">0.23</td><td class="n">+4.0%</td><td class="n">24%</td>
+            
+          </tr><tr>
+            <td class="mut">9</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=043650" target="_blank">국순당</a><span class="cd">043650 · 코스닥</span></td>
+            <td class="n">3,635</td>
+            <td class="n ">0.0%</td>
+            <td class="n">649억</td>
+            <td class="n">0.24</td><td class="n">+1.6%</td><td class="n">8%</td>
+            
+          </tr><tr>
+            <td class="mut">10</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=000850" target="_blank">화천기공</a><span class="cd">000850 · 코스피</span></td>
+            <td class="n">38,750</td>
+            <td class="n up">+0.9%</td>
+            <td class="n">853억</td>
+            <td class="n">0.24</td><td class="n">+5.9%</td><td class="n">29%</td>
+            
+          </tr><tr>
+            <td class="mut">11</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=084650" target="_blank">랩지노믹스</a><span class="cd">084650 · 코스닥</span></td>
+            <td class="n">500</td>
+            <td class="n ">0.0%</td>
+            <td class="n">371억</td>
+            <td class="n">0.25</td><td class="n">-34.9%</td><td class="n">57%</td>
+            
+          </tr><tr>
+            <td class="mut">12</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=061250" target="_blank">화일약품</a><span class="cd">061250 · 코스닥</span></td>
+            <td class="n">6,820</td>
+            <td class="n up">+0.9%</td>
+            <td class="n">574억</td>
+            <td class="n">0.27</td><td class="n">+2.3%</td><td class="n">4%</td>
+            
+          </tr><tr>
+            <td class="mut">13</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=205470" target="_blank">휴마시스</a><span class="cd">205470 · 코스닥</span></td>
+            <td class="n">2,730</td>
+            <td class="n dn">-4.7%</td>
+            <td class="n">674억</td>
+            <td class="n">0.29</td><td class="n">-6.7%</td><td class="n">40%</td>
+            
+          </tr><tr>
+            <td class="mut">14</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=010960" target="_blank">삼호개발</a><span class="cd">010960 · 코스피</span></td>
+            <td class="n">3,110</td>
+            <td class="n up">+1.1%</td>
+            <td class="n">750억</td>
+            <td class="n">0.29</td><td class="n">+5.3%</td><td class="n">48%</td>
+            
+          </tr><tr>
+            <td class="mut">15</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=163560" target="_blank">동일고무벨트</a><span class="cd">163560 · 코스피</span></td>
+            <td class="n">5,470</td>
+            <td class="n dn">-0.4%</td>
+            <td class="n">760억</td>
+            <td class="n">0.30</td><td class="n">+10.2%</td><td class="n">48%</td>
+            
+          </tr><tr>
+            <td class="mut">16</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=011330" target="_blank">유니켐</a><span class="cd">011330 · 코스피</span></td>
+            <td class="n">4,150</td>
+            <td class="n dn">-0.6%</td>
+            <td class="n">416억</td>
+            <td class="n">0.30</td><td class="n">-10.3%</td><td class="n">80%</td>
+            
+          </tr><tr>
+            <td class="mut">17</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=026940" target="_blank">부국철강</a><span class="cd">026940 · 코스피</span></td>
+            <td class="n">2,200</td>
+            <td class="n ">0.0%</td>
+            <td class="n">440억</td>
+            <td class="n">0.32</td><td class="n">+1.5%</td><td class="n">20%</td>
+            
+          </tr><tr>
+            <td class="mut">18</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=053950" target="_blank">경남제약</a><span class="cd">053950 · 코스닥</span></td>
+            <td class="n">2,190</td>
+            <td class="n dn">-3.5%</td>
+            <td class="n">430억</td>
+            <td class="n">0.33</td><td class="n">-10.5%</td><td class="n">22%</td>
+            
+          </tr><tr>
+            <td class="mut">19</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=006090" target="_blank">사조오양</a><span class="cd">006090 · 코스피</span></td>
+            <td class="n">8,820</td>
+            <td class="n dn">-0.5%</td>
+            <td class="n">831억</td>
+            <td class="n">0.33</td><td class="n">+4.0%</td><td class="n">77%</td>
+            
+          </tr><tr>
+            <td class="mut">20</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=084730" target="_blank">팅크웨어</a><span class="cd">084730 · 코스닥</span></td>
+            <td class="n">6,670</td>
+            <td class="n up">+0.8%</td>
+            <td class="n">741억</td>
+            <td class="n">0.33</td><td class="n">-12.5%</td><td class="n">75%</td>
+            
+          </tr><tr>
+            <td class="mut">21</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=069920" target="_blank">엑시온그룹</a><span class="cd">069920 · 코스닥</span></td>
+            <td class="n">1,360</td>
+            <td class="n up">+9.3%</td>
+            <td class="n">309억</td>
+            <td class="n">0.33</td><td class="n">-18.3%</td><td class="n">131%</td>
+            
+          </tr><tr>
+            <td class="mut">22</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=019180" target="_blank">티에이치엔</a><span class="cd">019180 · 코스피</span></td>
+            <td class="n">5,020</td>
+            <td class="n dn">-0.2%</td>
+            <td class="n">904억</td>
+            <td class="n">0.33</td><td class="n">+28.0%</td><td class="n">154%</td>
+            
+          </tr><tr>
+            <td class="mut">23</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=036220" target="_blank">오상헬스케어</a><span class="cd">036220 · 코스닥</span></td>
+            <td class="n">6,810</td>
+            <td class="n up">+1.2%</td>
+            <td class="n">974억</td>
+            <td class="n">0.34</td><td class="n">-2.9%</td><td class="n">22%</td>
+            
+          </tr><tr>
+            <td class="mut">24</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=008260" target="_blank">NI스틸</a><span class="cd">008260 · 코스피</span></td>
+            <td class="n">3,390</td>
+            <td class="n up">+3.4%</td>
+            <td class="n">970억</td>
+            <td class="n">0.35</td><td class="n">+6.6%</td><td class="n">99%</td>
+            
+          </tr><tr>
+            <td class="mut">25</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=064800" target="_blank">포니링크</a><span class="cd">064800 · 코스닥</span></td>
+            <td class="n">2,295</td>
+            <td class="n up">+2.0%</td>
+            <td class="n">587억</td>
+            <td class="n">0.35</td><td class="n">-86.1%</td><td class="n">24%</td>
+            
+          </tr><tr>
+            <td class="mut">26</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=111710" target="_blank">남화산업</a><span class="cd">111710 · 코스닥</span></td>
+            <td class="n">3,230</td>
+            <td class="n up">+1.4%</td>
+            <td class="n">665억</td>
+            <td class="n">0.35</td><td class="n">+3.5%</td><td class="n">8%</td>
+            
+          </tr><tr>
+            <td class="mut">27</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=084680" target="_blank">이월드</a><span class="cd">084680 · 코스피</span></td>
+            <td class="n">532</td>
+            <td class="n ">0.0%</td>
+            <td class="n">754억</td>
+            <td class="n">0.35</td><td class="n">-6.8%</td><td class="n">89%</td>
+            
+          </tr><tr>
+            <td class="mut">28</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=056360" target="_blank">코위버</a><span class="cd">056360 · 코스닥</span></td>
+            <td class="n">6,150</td>
+            <td class="n up">+2.7%</td>
+            <td class="n">603억</td>
+            <td class="n">0.36</td><td class="n">+1.7%</td><td class="n">18%</td>
+            
+          </tr><tr>
+            <td class="mut">29</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=020710" target="_blank">시공테크</a><span class="cd">020710 · 코스닥</span></td>
+            <td class="n">3,735</td>
+            <td class="n dn">-0.8%</td>
+            <td class="n">749억</td>
+            <td class="n">0.38</td><td class="n">+14.6%</td><td class="n">33%</td>
+            
+          </tr><tr>
+            <td class="mut">30</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=036090" target="_blank">위지트</a><span class="cd">036090 · 코스닥</span></td>
+            <td class="n">1,363</td>
+            <td class="n dn">-0.9%</td>
+            <td class="n">580억</td>
+            <td class="n">0.38</td><td class="n">+2.4%</td><td class="n">71%</td>
+            
+          </tr></tbody></table></div>
+      </section><section class="card">
+        <h3>신 F-스코어 + 저PBR<span class="cnt">상위 25종목</span></h3>
+        <p class="origin">강환국 (피오트로스키 F-Score 한국형 축소) · 재무 건전성 3개 중 2개 이상 통과 + 저PBR · 리밸런싱 분기 1회 · 후보군 868종목</p>
+        <p class="why">피오트로스키의 9개 지표 중 한국에서 유의미했던 것만 추린 버전. &quot;싸기만 한 게 아니라 망하지는 않는 회사&quot;를 걸러내는 게 목적이다.</p>
+        <p class="caution">주의 · 원전략 3지표는 신규주식 발행 없음·순이익 흑자·영업현금흐름 흑자다. 현금흐름과 신주발행 데이터가 없어 영업이익 흑자·부채비율 200% 미만으로 대체했다.</p>
+        <div class="tw"><table>
+          <thead><tr><th>#</th><th>종목</th><th class="n">종가</th><th class="n">1일</th><th class="n">시총</th><th class="n">F점수</th><th class="n">PBR</th><th class="n">부채비율</th></tr></thead>
+          <tbody><tr>
+            <td class="mut">1</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=012320" target="_blank">경동인베스트</a><span class="cd">012320 · 코스피</span></td>
+            <td class="n">46,100</td>
+            <td class="n up">+1.9%</td>
+            <td class="n">1,090억</td>
+            <td class="n">3/3</td><td class="n">0.20</td><td class="n">23%</td>
+            
+          </tr><tr>
+            <td class="mut">2</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=005010" target="_blank">휴스틸</a><span class="cd">005010 · 코스피</span></td>
+            <td class="n">4,070</td>
+            <td class="n up">+1.6%</td>
+            <td class="n">2,287억</td>
+            <td class="n">2/3</td><td class="n">0.21</td><td class="n">35%</td>
+            
+          </tr><tr>
+            <td class="mut">3</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=052420" target="_blank">오성첨단소재</a><span class="cd">052420 · 코스닥</span></td>
+            <td class="n">9,790</td>
+            <td class="n up">+1.2%</td>
+            <td class="n">954억</td>
+            <td class="n">3/3</td><td class="n">0.21</td><td class="n">23%</td>
+            
+          </tr><tr>
+            <td class="mut">4</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=013580" target="_blank">계룡건설</a><span class="cd">013580 · 코스피</span></td>
+            <td class="n">23,500</td>
+            <td class="n up">+1.7%</td>
+            <td class="n">2,099억</td>
+            <td class="n">2/3</td><td class="n">0.21</td><td class="n">232%</td>
+            
+          </tr><tr>
+            <td class="mut">5</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=023530" target="_blank">롯데쇼핑</a><span class="cd">023530 · 코스피</span></td>
+            <td class="n">114,100</td>
+            <td class="n dn">-2.6%</td>
+            <td class="n">3.2조</td>
+            <td class="n">3/3</td><td class="n">0.21</td><td class="n">125%</td>
+            
+          </tr><tr>
+            <td class="mut">6</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=214330" target="_blank">금호에이치티</a><span class="cd">214330 · 코스피</span></td>
+            <td class="n">6,700</td>
+            <td class="n up">+2.1%</td>
+            <td class="n">701억</td>
+            <td class="n">2/3</td><td class="n">0.22</td><td class="n">37%</td>
+            
+          </tr><tr>
+            <td class="mut">7</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=000670" target="_blank">영풍</a><span class="cd">000670 · 코스피</span></td>
+            <td class="n">47,900</td>
+            <td class="n up">+3.0%</td>
+            <td class="n">8,819억</td>
+            <td class="n">2/3</td><td class="n">0.22</td><td class="n">43%</td>
+            
+          </tr><tr>
+            <td class="mut">8</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=053700" target="_blank">삼보모터스</a><span class="cd">053700 · 코스닥</span></td>
+            <td class="n">3,910</td>
+            <td class="n up">+0.1%</td>
+            <td class="n">1,045억</td>
+            <td class="n">2/3</td><td class="n">0.22</td><td class="n">212%</td>
+            
+          </tr><tr>
+            <td class="mut">9</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=008420" target="_blank">문배철강</a><span class="cd">008420 · 코스피</span></td>
+            <td class="n">2,195</td>
+            <td class="n up">+0.5%</td>
+            <td class="n">450억</td>
+            <td class="n">3/3</td><td class="n">0.23</td><td class="n">24%</td>
+            
+          </tr><tr>
+            <td class="mut">10</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=200880" target="_blank">서연이화</a><span class="cd">200880 · 코스피</span></td>
+            <td class="n">11,160</td>
+            <td class="n up">+0.2%</td>
+            <td class="n">3,016억</td>
+            <td class="n">3/3</td><td class="n">0.23</td><td class="n">152%</td>
+            
+          </tr><tr>
+            <td class="mut">11</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=004020" target="_blank">현대제철</a><span class="cd">004020 · 코스피</span></td>
+            <td class="n">35,850</td>
+            <td class="n up">+4.2%</td>
+            <td class="n">4.8조</td>
+            <td class="n">2/3</td><td class="n">0.24</td><td class="n">76%</td>
+            
+          </tr><tr>
+            <td class="mut">12</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=002240" target="_blank">고려제강</a><span class="cd">002240 · 코스피</span></td>
+            <td class="n">17,070</td>
+            <td class="n up">+0.8%</td>
+            <td class="n">4,609억</td>
+            <td class="n">3/3</td><td class="n">0.24</td><td class="n">39%</td>
+            
+          </tr><tr>
+            <td class="mut">13</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=023410" target="_blank">유진기업</a><span class="cd">023410 · 코스닥</span></td>
+            <td class="n">3,240</td>
+            <td class="n ">0.0%</td>
+            <td class="n">2,505억</td>
+            <td class="n">2/3</td><td class="n">0.24</td><td class="n">181%</td>
+            
+          </tr><tr>
+            <td class="mut">14</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=043650" target="_blank">국순당</a><span class="cd">043650 · 코스닥</span></td>
+            <td class="n">3,635</td>
+            <td class="n ">0.0%</td>
+            <td class="n">649억</td>
+            <td class="n">2/3</td><td class="n">0.24</td><td class="n">8%</td>
+            
+          </tr><tr>
+            <td class="mut">15</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=000850" target="_blank">화천기공</a><span class="cd">000850 · 코스피</span></td>
+            <td class="n">38,750</td>
+            <td class="n up">+0.9%</td>
+            <td class="n">853억</td>
+            <td class="n">3/3</td><td class="n">0.24</td><td class="n">29%</td>
+            
+          </tr><tr>
+            <td class="mut">16</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=128820" target="_blank">대성산업</a><span class="cd">128820 · 코스피</span></td>
+            <td class="n">4,015</td>
+            <td class="n dn">-1.4%</td>
+            <td class="n">1,816억</td>
+            <td class="n">2/3</td><td class="n">0.25</td><td class="n">170%</td>
+            
+          </tr><tr>
+            <td class="mut">17</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=004690" target="_blank">삼천리</a><span class="cd">004690 · 코스피</span></td>
+            <td class="n">131,600</td>
+            <td class="n dn">-0.3%</td>
+            <td class="n">4,773억</td>
+            <td class="n">3/3</td><td class="n">0.25</td><td class="n">120%</td>
+            
+          </tr><tr>
+            <td class="mut">18</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=900290" target="_blank">GRT</a><span class="cd">900290 · 코스닥</span></td>
+            <td class="n">3,425</td>
+            <td class="n dn">-2.4%</td>
+            <td class="n">3,177억</td>
+            <td class="n">3/3</td><td class="n">0.25</td><td class="n">84%</td>
+            
+          </tr><tr>
+            <td class="mut">19</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=016380" target="_blank">KG스틸</a><span class="cd">016380 · 코스피</span></td>
+            <td class="n">5,730</td>
+            <td class="n up">+0.5%</td>
+            <td class="n">5,731억</td>
+            <td class="n">3/3</td><td class="n">0.26</td><td class="n">63%</td>
+            
+          </tr><tr>
+            <td class="mut">20</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=020000" target="_blank">한섬</a><span class="cd">020000 · 코스피</span></td>
+            <td class="n">17,730</td>
+            <td class="n up">+10.4%</td>
+            <td class="n">3,808억</td>
+            <td class="n">3/3</td><td class="n">0.26</td><td class="n">18%</td>
+            
+          </tr><tr>
+            <td class="mut">21</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=102940" target="_blank">코오롱생명과학</a><span class="cd">102940 · 코스닥</span></td>
+            <td class="n">14,050</td>
+            <td class="n dn">-0.4%</td>
+            <td class="n">1,839억</td>
+            <td class="n">3/3</td><td class="n">0.26</td><td class="n">56%</td>
+            
+          </tr><tr>
+            <td class="mut">22</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=035760" target="_blank">CJ ENM</a><span class="cd">035760 · 코스닥</span></td>
+            <td class="n">36,600</td>
+            <td class="n dn">-2.8%</td>
+            <td class="n">8,026억</td>
+            <td class="n">2/3</td><td class="n">0.26</td><td class="n">153%</td>
+            
+          </tr><tr>
+            <td class="mut">23</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=036460" target="_blank">한국가스공사</a><span class="cd">036460 · 코스피</span></td>
+            <td class="n">35,650</td>
+            <td class="n dn">-1.7%</td>
+            <td class="n">3.3조</td>
+            <td class="n">2/3</td><td class="n">0.26</td><td class="n">345%</td>
+            
+          </tr><tr>
+            <td class="mut">24</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=015750" target="_blank">성우하이텍</a><span class="cd">015750 · 코스닥</span></td>
+            <td class="n">5,980</td>
+            <td class="n dn">-0.3%</td>
+            <td class="n">4,784억</td>
+            <td class="n">3/3</td><td class="n">0.27</td><td class="n">147%</td>
+            
+          </tr><tr>
+            <td class="mut">25</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=002350" target="_blank">넥센타이어</a><span class="cd">002350 · 코스피</span></td>
+            <td class="n">5,580</td>
+            <td class="n dn">-0.7%</td>
+            <td class="n">5,450억</td>
+            <td class="n">3/3</td><td class="n">0.27</td><td class="n">131%</td>
+            
+          </tr></tbody></table></div>
+      </section><section class="card">
+        <h3>S-RIM 저평가<span class="cnt">상위 25종목</span></h3>
+        <p class="origin">사경인 『재무제표 모르면 주식투자 절대로 하지 마라』 · 적정주가 = 자기자본 + 초과이익의 현재가치 → 괴리율 상위 · 리밸런싱 분기 1회 · 후보군 152종목</p>
+        <p class="why">ROE가 요구수익률보다 높은 만큼이 &quot;초과이익&quot;이고, 그걸 자기자본에 더해 적정가를 구한다. 회계사가 만들어 국내 스크리닝 도구에 가장 널리 들어간 적정주가 모델.</p>
+        <p class="caution">주의 · 요구수익률(기본 8%)과 초과이익 지속계수(기본 0.8)에 결과가 크게 좌우된다. ROE가 틀리면 적정가도 틀린다. 일회성 이익으로 ROE가 튀어오른 회사를 조심할 것.</p>
+        <div class="tw"><table>
+          <thead><tr><th>#</th><th>종목</th><th class="n">종가</th><th class="n">1일</th><th class="n">시총</th><th class="n">적정주가</th><th class="n">괴리율</th><th class="n">ROE(가중)</th><th class="n">PBR</th></tr></thead>
+          <tbody><tr>
+            <td class="mut">1</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=019010" target="_blank">베뉴지</a><span class="cd">019010 · 코스닥</span></td>
+            <td class="n">4,830</td>
+            <td class="n dn">-0.6%</td>
+            <td class="n">2,328억</td>
+            <td class="n">18,480원</td><td class="n">+282.6%</td><td class="n">+13.0%</td><td class="n">0.30</td>
+            
+          </tr><tr>
+            <td class="mut">2</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=002380" target="_blank">KCC</a><span class="cd">002380 · 코스피</span></td>
+            <td class="n">466,000</td>
+            <td class="n up">+0.3%</td>
+            <td class="n">4.0조</td>
+            <td class="n">1,782,224원</td><td class="n">+282.5%</td><td class="n">+14.6%</td><td class="n">0.31</td>
+            
+          </tr><tr>
+            <td class="mut">3</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=005880" target="_blank">대한해운</a><span class="cd">005880 · 코스피</span></td>
+            <td class="n">2,035</td>
+            <td class="n dn">-1.2%</td>
+            <td class="n">6,568억</td>
+            <td class="n">7,521원</td><td class="n">+269.6%</td><td class="n">+8.0%</td><td class="n">0.27</td>
+            
+          </tr><tr>
+            <td class="mut">4</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=003650" target="_blank">미창석유</a><span class="cd">003650 · 코스피</span></td>
+            <td class="n">127,300</td>
+            <td class="n dn">-2.4%</td>
+            <td class="n">2,215억</td>
+            <td class="n">451,737원</td><td class="n">+254.9%</td><td class="n">+14.5%</td><td class="n">0.33</td>
+            
+          </tr><tr>
+            <td class="mut">5</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=035890" target="_blank">서희건설</a><span class="cd">035890 · 코스닥</span></td>
+            <td class="n">2,330</td>
+            <td class="n dn">-0.9%</td>
+            <td class="n">4,837억</td>
+            <td class="n">7,955원</td><td class="n">+241.4%</td><td class="n">+14.8%</td><td class="n">0.35</td>
+            
+          </tr><tr>
+            <td class="mut">6</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=020710" target="_blank">시공테크</a><span class="cd">020710 · 코스닥</span></td>
+            <td class="n">3,735</td>
+            <td class="n dn">-0.8%</td>
+            <td class="n">749억</td>
+            <td class="n">12,358원</td><td class="n">+230.9%</td><td class="n">+17.0%</td><td class="n">0.38</td>
+            
+          </tr><tr>
+            <td class="mut">7</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=071320" target="_blank">지역난방공사</a><span class="cd">071320 · 코스피</span></td>
+            <td class="n">74,900</td>
+            <td class="n ">0.0%</td>
+            <td class="n">8,672억</td>
+            <td class="n">238,843원</td><td class="n">+218.9%</td><td class="n">+12.4%</td><td class="n">0.35</td>
+            
+          </tr><tr>
+            <td class="mut">8</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=008260" target="_blank">NI스틸</a><span class="cd">008260 · 코스피</span></td>
+            <td class="n">3,390</td>
+            <td class="n up">+3.4%</td>
+            <td class="n">970억</td>
+            <td class="n">10,680원</td><td class="n">+215.0%</td><td class="n">+11.1%</td><td class="n">0.35</td>
+            
+          </tr><tr>
+            <td class="mut">9</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=041930" target="_blank">SY동아</a><span class="cd">041930 · 코스닥</span></td>
+            <td class="n">5,020</td>
+            <td class="n up">+0.7%</td>
+            <td class="n">763억</td>
+            <td class="n">14,766원</td><td class="n">+194.2%</td><td class="n">+12.5%</td><td class="n">0.38</td>
+            
+          </tr><tr>
+            <td class="mut">10</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=011760" target="_blank">현대코퍼레이션</a><span class="cd">011760 · 코스피</span></td>
+            <td class="n">26,400</td>
+            <td class="n dn">-1.3%</td>
+            <td class="n">3,492억</td>
+            <td class="n">77,574원</td><td class="n">+193.8%</td><td class="n">+15.8%</td><td class="n">0.42</td>
+            
+          </tr><tr>
+            <td class="mut">11</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=136490" target="_blank">선진</a><span class="cd">136490 · 코스피</span></td>
+            <td class="n">10,230</td>
+            <td class="n up">+0.3%</td>
+            <td class="n">2,433억</td>
+            <td class="n">29,942원</td><td class="n">+192.7%</td><td class="n">+12.7%</td><td class="n">0.39</td>
+            
+          </tr><tr>
+            <td class="mut">12</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=044450" target="_blank">KSS해운</a><span class="cd">044450 · 코스피</span></td>
+            <td class="n">10,080</td>
+            <td class="n dn">-1.2%</td>
+            <td class="n">2,276억</td>
+            <td class="n">29,279원</td><td class="n">+190.5%</td><td class="n">+8.1%</td><td class="n">0.35</td>
+            
+          </tr><tr>
+            <td class="mut">13</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=306200" target="_blank">세아제강</a><span class="cd">306200 · 코스피</span></td>
+            <td class="n">148,000</td>
+            <td class="n up">+1.2%</td>
+            <td class="n">4,198억</td>
+            <td class="n">423,549원</td><td class="n">+186.2%</td><td class="n">+9.1%</td><td class="n">0.36</td>
+            
+          </tr><tr>
+            <td class="mut">14</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=053980" target="_blank">오상자이엘</a><span class="cd">053980 · 코스닥</span></td>
+            <td class="n">2,400</td>
+            <td class="n dn">-0.2%</td>
+            <td class="n">456억</td>
+            <td class="n">6,682원</td><td class="n">+178.4%</td><td class="n">+11.7%</td><td class="n">0.40</td>
+            
+          </tr><tr>
+            <td class="mut">15</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=210540" target="_blank">디와이파워</a><span class="cd">210540 · 코스피</span></td>
+            <td class="n">11,300</td>
+            <td class="n up">+0.8%</td>
+            <td class="n">1,248억</td>
+            <td class="n">30,959원</td><td class="n">+174.0%</td><td class="n">+8.6%</td><td class="n">0.37</td>
+            
+          </tr><tr>
+            <td class="mut">16</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=009070" target="_blank">KCTC</a><span class="cd">009070 · 코스피</span></td>
+            <td class="n">4,090</td>
+            <td class="n up">+2.4%</td>
+            <td class="n">1,227억</td>
+            <td class="n">11,177원</td><td class="n">+173.3%</td><td class="n">+8.2%</td><td class="n">0.37</td>
+            
+          </tr><tr>
+            <td class="mut">17</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=016740" target="_blank">두올</a><span class="cd">016740 · 코스피</span></td>
+            <td class="n">4,015</td>
+            <td class="n up">+0.5%</td>
+            <td class="n">1,151억</td>
+            <td class="n">10,886원</td><td class="n">+171.1%</td><td class="n">+9.8%</td><td class="n">0.39</td>
+            
+          </tr><tr>
+            <td class="mut">18</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=041190" target="_blank">우리기술투자</a><span class="cd">041190 · 코스닥</span></td>
+            <td class="n">5,560</td>
+            <td class="n up">+4.3%</td>
+            <td class="n">4,437억</td>
+            <td class="n">14,836원</td><td class="n">+166.8%</td><td class="n">+20.4%</td><td class="n">0.51</td>
+            
+          </tr><tr>
+            <td class="mut">19</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=010690" target="_blank">화신</a><span class="cd">010690 · 코스피</span></td>
+            <td class="n">7,660</td>
+            <td class="n up">+1.5%</td>
+            <td class="n">2,675억</td>
+            <td class="n">20,344원</td><td class="n">+165.6%</td><td class="n">+13.0%</td><td class="n">0.43</td>
+            
+          </tr><tr>
+            <td class="mut">20</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=051370" target="_blank">인터플렉스</a><span class="cd">051370 · 코스닥</span></td>
+            <td class="n">6,360</td>
+            <td class="n up">+1.3%</td>
+            <td class="n">1,484억</td>
+            <td class="n">16,723원</td><td class="n">+162.9%</td><td class="n">+15.0%</td><td class="n">0.46</td>
+            
+          </tr><tr>
+            <td class="mut">21</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=009900" target="_blank">명신산업</a><span class="cd">009900 · 코스피</span></td>
+            <td class="n">7,940</td>
+            <td class="n up">+0.1%</td>
+            <td class="n">4,166억</td>
+            <td class="n">20,436원</td><td class="n">+157.4%</td><td class="n">+17.2%</td><td class="n">0.49</td>
+            
+          </tr><tr>
+            <td class="mut">22</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=284740" target="_blank">쿠쿠홈시스</a><span class="cd">284740 · 코스피</span></td>
+            <td class="n">23,700</td>
+            <td class="n dn">-1.0%</td>
+            <td class="n">5,318억</td>
+            <td class="n">58,421원</td><td class="n">+146.5%</td><td class="n">+13.1%</td><td class="n">0.47</td>
+            
+          </tr><tr>
+            <td class="mut">23</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=012630" target="_blank">HDC</a><span class="cd">012630 · 코스피</span></td>
+            <td class="n">26,550</td>
+            <td class="n dn">-2.0%</td>
+            <td class="n">1.6조</td>
+            <td class="n">64,650원</td><td class="n">+143.5%</td><td class="n">+8.1%</td><td class="n">0.41</td>
+            
+          </tr><tr>
+            <td class="mut">24</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=006040" target="_blank">동원산업</a><span class="cd">006040 · 코스피</span></td>
+            <td class="n">35,750</td>
+            <td class="n dn">-1.7%</td>
+            <td class="n">1.6조</td>
+            <td class="n">86,933원</td><td class="n">+143.2%</td><td class="n">+8.2%</td><td class="n">0.41</td>
+            
+          </tr><tr>
+            <td class="mut">25</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=297890" target="_blank">HB솔루션</a><span class="cd">297890 · 코스닥</span></td>
+            <td class="n">1,623</td>
+            <td class="n dn">-3.3%</td>
+            <td class="n">1,187억</td>
+            <td class="n">3,904원</td><td class="n">+140.6%</td><td class="n">+9.4%</td><td class="n">0.43</td>
+            
+          </tr></tbody></table></div>
+      </section><section class="card">
+        <h3>절대모멘텀 + 변동성 역가중<span class="cnt">상위 20종목</span></h3>
+        <p class="origin">systrader79 계열 · 1년 수익률 플러스 + 120일선 위 → 변동성 낮은 순 · 리밸런싱 월 1회 · 후보군 234종목</p>
+        <p class="why">먼저 오르는 종목만 남기고(절대모멘텀), 그 안에서 덜 흔들리는 걸 더 많이 담는다(변동성 역가중). 수익률보다 떨어질 때 덜 아프려는 접근이다.</p>
+        <p class="caution">주의 · 강세장에서는 변동성 큰 종목이 더 오르기 때문에 뒤처진다. 하락장 방어용에 가깝다.</p>
+        <div class="tw"><table>
+          <thead><tr><th>#</th><th>종목</th><th class="n">종가</th><th class="n">1일</th><th class="n">시총</th><th class="n">1년수익률</th><th class="n">변동성</th><th class="n">제안비중</th></tr></thead>
+          <tbody><tr>
+            <td class="mut">1</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=002960" target="_blank">한국쉘석유</a><span class="cd">002960 · 코스피</span></td>
+            <td class="n">508,000</td>
+            <td class="n up">+0.2%</td>
+            <td class="n">6,604억</td>
+            <td class="n">+25.3%</td><td class="n">+11.8%</td>
+            <td class="n">9.2%</td>
+          </tr><tr>
+            <td class="mut">2</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=002810" target="_blank">삼영무역</a><span class="cd">002810 · 코스피</span></td>
+            <td class="n">21,250</td>
+            <td class="n dn">-1.2%</td>
+            <td class="n">3,924억</td>
+            <td class="n">+34.6%</td><td class="n">+17.3%</td>
+            <td class="n">6.3%</td>
+          </tr><tr>
+            <td class="mut">3</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=004690" target="_blank">삼천리</a><span class="cd">004690 · 코스피</span></td>
+            <td class="n">131,600</td>
+            <td class="n dn">-0.3%</td>
+            <td class="n">4,773억</td>
+            <td class="n">+0.9%</td><td class="n">+17.7%</td>
+            <td class="n">6.1%</td>
+          </tr><tr>
+            <td class="mut">4</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=123890" target="_blank">한국자산신탁</a><span class="cd">123890 · 코스피</span></td>
+            <td class="n">2,460</td>
+            <td class="n dn">-0.4%</td>
+            <td class="n">3,010억</td>
+            <td class="n">+5.4%</td><td class="n">+18.3%</td>
+            <td class="n">5.9%</td>
+          </tr><tr>
+            <td class="mut">5</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=003610" target="_blank">방림</a><span class="cd">003610 · 코스피</span></td>
+            <td class="n">5,700</td>
+            <td class="n dn">-1.6%</td>
+            <td class="n">1,830억</td>
+            <td class="n">+15.0%</td><td class="n">+19.8%</td>
+            <td class="n">5.5%</td>
+          </tr><tr>
+            <td class="mut">6</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=122900" target="_blank">아이마켓코리아</a><span class="cd">122900 · 코스피</span></td>
+            <td class="n">8,300</td>
+            <td class="n dn">-0.5%</td>
+            <td class="n">2,775억</td>
+            <td class="n">+0.2%</td><td class="n">+19.9%</td>
+            <td class="n">5.4%</td>
+          </tr><tr>
+            <td class="mut">7</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=065710" target="_blank">서호전기</a><span class="cd">065710 · 코스닥</span></td>
+            <td class="n">45,400</td>
+            <td class="n dn">-0.2%</td>
+            <td class="n">2,338억</td>
+            <td class="n">+6.9%</td><td class="n">+20.0%</td>
+            <td class="n">5.4%</td>
+          </tr><tr>
+            <td class="mut">8</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=011760" target="_blank">현대코퍼레이션</a><span class="cd">011760 · 코스피</span></td>
+            <td class="n">26,400</td>
+            <td class="n dn">-1.3%</td>
+            <td class="n">3,492억</td>
+            <td class="n">+19.2%</td><td class="n">+20.4%</td>
+            <td class="n">5.3%</td>
+          </tr><tr>
+            <td class="mut">9</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=013580" target="_blank">계룡건설</a><span class="cd">013580 · 코스피</span></td>
+            <td class="n">23,500</td>
+            <td class="n up">+1.7%</td>
+            <td class="n">2,099억</td>
+            <td class="n">+17.2%</td><td class="n">+20.8%</td>
+            <td class="n">5.2%</td>
+          </tr><tr>
+            <td class="mut">10</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=000850" target="_blank">화천기공</a><span class="cd">000850 · 코스피</span></td>
+            <td class="n">38,750</td>
+            <td class="n up">+0.9%</td>
+            <td class="n">853억</td>
+            <td class="n">+20.3%</td><td class="n">+23.3%</td>
+            <td class="n">4.6%</td>
+          </tr><tr>
+            <td class="mut">11</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=001540" target="_blank">안국약품</a><span class="cd">001540 · 코스닥</span></td>
+            <td class="n">10,200</td>
+            <td class="n dn">-0.6%</td>
+            <td class="n">1,330억</td>
+            <td class="n">+27.0%</td><td class="n">+23.5%</td>
+            <td class="n">4.6%</td>
+          </tr><tr>
+            <td class="mut">12</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=036190" target="_blank">금화피에스시</a><span class="cd">036190 · 코스닥</span></td>
+            <td class="n">34,400</td>
+            <td class="n up">+2.5%</td>
+            <td class="n">2,064억</td>
+            <td class="n">+6.3%</td><td class="n">+23.9%</td>
+            <td class="n">4.5%</td>
+          </tr><tr>
+            <td class="mut">13</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=016380" target="_blank">KG스틸</a><span class="cd">016380 · 코스피</span></td>
+            <td class="n">5,730</td>
+            <td class="n up">+0.5%</td>
+            <td class="n">5,731억</td>
+            <td class="n">+5.1%</td><td class="n">+25.2%</td>
+            <td class="n">4.3%</td>
+          </tr><tr>
+            <td class="mut">14</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=030190" target="_blank">NICE평가정보</a><span class="cd">030190 · 코스피</span></td>
+            <td class="n">15,350</td>
+            <td class="n dn">-2.8%</td>
+            <td class="n">8,944억</td>
+            <td class="n">+9.0%</td><td class="n">+25.8%</td>
+            <td class="n">4.2%</td>
+          </tr><tr>
+            <td class="mut">15</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=294870" target="_blank">IPARK현대산업개발</a><span class="cd">294870 · 코스피</span></td>
+            <td class="n">23,550</td>
+            <td class="n up">+0.6%</td>
+            <td class="n">1.6조</td>
+            <td class="n">+13.8%</td><td class="n">+27.1%</td>
+            <td class="n">4.0%</td>
+          </tr><tr>
+            <td class="mut">16</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=108670" target="_blank">LX하우시스</a><span class="cd">108670 · 코스피</span></td>
+            <td class="n">33,600</td>
+            <td class="n up">+0.3%</td>
+            <td class="n">3,013억</td>
+            <td class="n">+16.9%</td><td class="n">+27.2%</td>
+            <td class="n">4.0%</td>
+          </tr><tr>
+            <td class="mut">17</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=204610" target="_blank">티쓰리</a><span class="cd">204610 · 코스닥</span></td>
+            <td class="n">3,060</td>
+            <td class="n dn">-0.6%</td>
+            <td class="n">1,705억</td>
+            <td class="n">+49.3%</td><td class="n">+28.2%</td>
+            <td class="n">3.8%</td>
+          </tr><tr>
+            <td class="mut">18</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=306200" target="_blank">세아제강</a><span class="cd">306200 · 코스피</span></td>
+            <td class="n">148,000</td>
+            <td class="n up">+1.2%</td>
+            <td class="n">4,198억</td>
+            <td class="n">+16.7%</td><td class="n">+28.3%</td>
+            <td class="n">3.8%</td>
+          </tr><tr>
+            <td class="mut">19</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=018670" target="_blank">SK가스</a><span class="cd">018670 · 코스피</span></td>
+            <td class="n">240,500</td>
+            <td class="n dn">-0.4%</td>
+            <td class="n">2.2조</td>
+            <td class="n">+2.1%</td><td class="n">+28.6%</td>
+            <td class="n">3.8%</td>
+          </tr><tr>
+            <td class="mut">20</td>
+            <td class="nm"><a href="https://finance.naver.com/item/main.naver?code=236200" target="_blank">슈프리마</a><span class="cd">236200 · 코스닥</span></td>
+            <td class="n">51,100</td>
+            <td class="n dn">-1.2%</td>
+            <td class="n">3,564억</td>
+            <td class="n">+48.1%</td><td class="n">+28.7%</td>
+            <td class="n">3.8%</td>
+          </tr></tbody></table></div>
+      </section>
+        <div class="lead"><h2>팩터 구간 분석 <small>문병로 『메트릭 스튜디오』 방식</small></h2></div>
+        <section class="card note">
+          <p>"PBR이 낮을수록 좋다"는 말을 그대로 믿지 말고, <b>지표를 10등분해서 구간별로 실제 수익률을 직접 확인</b>한 것입니다.
+          매년 같은 방향으로 움직이지 않고(비선형), 어느 구간에서만 효과가 나는 경우가 많습니다.</p>
+        </section>
+        <section class="card">
+        <h3>시가총액<span class="cnt">120거래일 후</span></h3>
+        <p class="origin">1분위 = 가장 작은 회사. 소형주 효과 확인용</p>
+        <div class="tw"><table class="rank">
+          <thead><tr><th>분위</th><th class="n">구간 평균값</th><th class="n">이후 수익률</th><th>막대</th><th class="n">승률</th><th class="n">표본</th></tr></thead>
+          <tbody><tr>
+            <td><b>1</b>분위</td>
+            <td class="n mut">1,660</td>
+            <td class="n up"><b>+30.0%</b></td>
+            <td><span class="bar" style="width:100%"></span></td>
+            <td class="n">61%</td>
+            <td class="n mut">2,929</td></tr><tr>
+            <td><b>2</b>분위</td>
+            <td class="n mut">2,612</td>
+            <td class="n up"><b>+15.9%</b></td>
+            <td><span class="bar" style="width:53%"></span></td>
+            <td class="n">55%</td>
+            <td class="n mut">2,904</td></tr><tr>
+            <td><b>3</b>분위</td>
+            <td class="n mut">3,388</td>
+            <td class="n up"><b>+11.5%</b></td>
+            <td><span class="bar" style="width:38%"></span></td>
+            <td class="n">49%</td>
+            <td class="n mut">2,908</td></tr><tr>
+            <td><b>4</b>분위</td>
+            <td class="n mut">4,380</td>
+            <td class="n up"><b>+7.7%</b></td>
+            <td><span class="bar" style="width:26%"></span></td>
+            <td class="n">45%</td>
+            <td class="n mut">2,908</td></tr><tr>
+            <td><b>5</b>분위</td>
+            <td class="n mut">5,916</td>
+            <td class="n up"><b>+9.2%</b></td>
+            <td><span class="bar" style="width:31%"></span></td>
+            <td class="n">48%</td>
+            <td class="n mut">2,898</td></tr><tr>
+            <td><b>6</b>분위</td>
+            <td class="n mut">8,108</td>
+            <td class="n up"><b>+6.7%</b></td>
+            <td><span class="bar" style="width:22%"></span></td>
+            <td class="n">46%</td>
+            <td class="n mut">2,913</td></tr><tr>
+            <td><b>7</b>분위</td>
+            <td class="n mut">11,630</td>
+            <td class="n up"><b>+9.4%</b></td>
+            <td><span class="bar" style="width:31%"></span></td>
+            <td class="n">49%</td>
+            <td class="n mut">2,912</td></tr><tr>
+            <td><b>8</b>분위</td>
+            <td class="n mut">18,259</td>
+            <td class="n up"><b>+7.4%</b></td>
+            <td><span class="bar" style="width:25%"></span></td>
+            <td class="n">49%</td>
+            <td class="n mut">2,904</td></tr><tr>
+            <td><b>9</b>분위</td>
+            <td class="n mut">37,789</td>
+            <td class="n up"><b>+12.8%</b></td>
+            <td><span class="bar" style="width:43%"></span></td>
+            <td class="n">54%</td>
+            <td class="n mut">2,908</td></tr><tr>
+            <td><b>10</b>분위</td>
+            <td class="n mut">257,349</td>
+            <td class="n up"><b>+12.5%</b></td>
+            <td><span class="bar" style="width:42%"></span></td>
+            <td class="n">56%</td>
+            <td class="n mut">2,888</td></tr></tbody></table></div>
+      </section><section class="card">
+        <h3>12-1 모멘텀<span class="cnt">120거래일 후</span></h3>
+        <p class="origin">1분위 = 가장 많이 하락. 10분위 = 가장 많이 상승</p>
+        <div class="tw"><table class="rank">
+          <thead><tr><th>분위</th><th class="n">구간 평균값</th><th class="n">이후 수익률</th><th>막대</th><th class="n">승률</th><th class="n">표본</th></tr></thead>
+          <tbody><tr>
+            <td><b>1</b>분위</td>
+            <td class="n mut">-0.43</td>
+            <td class="n up"><b>+10.7%</b></td>
+            <td><span class="bar" style="width:53%"></span></td>
+            <td class="n">49%</td>
+            <td class="n mut">2,929</td></tr><tr>
+            <td><b>2</b>분위</td>
+            <td class="n mut">-0.27</td>
+            <td class="n up"><b>+7.3%</b></td>
+            <td><span class="bar" style="width:36%"></span></td>
+            <td class="n">48%</td>
+            <td class="n mut">2,904</td></tr><tr>
+            <td><b>3</b>분위</td>
+            <td class="n mut">-0.18</td>
+            <td class="n up"><b>+9.1%</b></td>
+            <td><span class="bar" style="width:45%"></span></td>
+            <td class="n">50%</td>
+            <td class="n mut">2,908</td></tr><tr>
+            <td><b>4</b>분위</td>
+            <td class="n mut">-0.11</td>
+            <td class="n up"><b>+11.0%</b></td>
+            <td><span class="bar" style="width:55%"></span></td>
+            <td class="n">51%</td>
+            <td class="n mut">2,908</td></tr><tr>
+            <td><b>5</b>분위</td>
+            <td class="n mut">-0.04</td>
+            <td class="n up"><b>+10.7%</b></td>
+            <td><span class="bar" style="width:53%"></span></td>
+            <td class="n">52%</td>
+            <td class="n mut">2,898</td></tr><tr>
+            <td><b>6</b>분위</td>
+            <td class="n mut">0.04</td>
+            <td class="n up"><b>+12.0%</b></td>
+            <td><span class="bar" style="width:59%"></span></td>
+            <td class="n">52%</td>
+            <td class="n mut">2,913</td></tr><tr>
+            <td><b>7</b>분위</td>
+            <td class="n mut">0.14</td>
+            <td class="n up"><b>+11.6%</b></td>
+            <td><span class="bar" style="width:57%"></span></td>
+            <td class="n">53%</td>
+            <td class="n mut">2,912</td></tr><tr>
+            <td><b>8</b>분위</td>
+            <td class="n mut">0.28</td>
+            <td class="n up"><b>+13.5%</b></td>
+            <td><span class="bar" style="width:67%"></span></td>
+            <td class="n">53%</td>
+            <td class="n mut">2,904</td></tr><tr>
+            <td><b>9</b>분위</td>
+            <td class="n mut">0.51</td>
+            <td class="n up"><b>+17.0%</b></td>
+            <td><span class="bar" style="width:84%"></span></td>
+            <td class="n">52%</td>
+            <td class="n mut">2,908</td></tr><tr>
+            <td><b>10</b>분위</td>
+            <td class="n mut">1.60</td>
+            <td class="n up"><b>+20.3%</b></td>
+            <td><span class="bar" style="width:100%"></span></td>
+            <td class="n">51%</td>
+            <td class="n mut">2,888</td></tr></tbody></table></div>
+      </section><section class="card">
+        <h3>변동성(20일)<span class="cnt">120거래일 후</span></h3>
+        <p class="origin">1분위 = 가장 안 흔들림</p>
+        <div class="tw"><table class="rank">
+          <thead><tr><th>분위</th><th class="n">구간 평균값</th><th class="n">이후 수익률</th><th>막대</th><th class="n">승률</th><th class="n">표본</th></tr></thead>
+          <tbody><tr>
+            <td><b>1</b>분위</td>
+            <td class="n mut">0.18</td>
+            <td class="n up"><b>+6.2%</b></td>
+            <td><span class="bar" style="width:37%"></span></td>
+            <td class="n">52%</td>
+            <td class="n mut">2,929</td></tr><tr>
+            <td><b>2</b>분위</td>
+            <td class="n mut">0.25</td>
+            <td class="n up"><b>+9.5%</b></td>
+            <td><span class="bar" style="width:57%"></span></td>
+            <td class="n">53%</td>
+            <td class="n mut">2,904</td></tr><tr>
+            <td><b>3</b>분위</td>
+            <td class="n mut">0.30</td>
+            <td class="n up"><b>+11.0%</b></td>
+            <td><span class="bar" style="width:66%"></span></td>
+            <td class="n">54%</td>
+            <td class="n mut">2,908</td></tr><tr>
+            <td><b>4</b>분위</td>
+            <td class="n mut">0.34</td>
+            <td class="n up"><b>+11.6%</b></td>
+            <td><span class="bar" style="width:69%"></span></td>
+            <td class="n">52%</td>
+            <td class="n mut">2,908</td></tr><tr>
+            <td><b>5</b>분위</td>
+            <td class="n mut">0.38</td>
+            <td class="n up"><b>+10.8%</b></td>
+            <td><span class="bar" style="width:64%"></span></td>
+            <td class="n">51%</td>
+            <td class="n mut">2,898</td></tr><tr>
+            <td><b>6</b>분위</td>
+            <td class="n mut">0.42</td>
+            <td class="n up"><b>+13.4%</b></td>
+            <td><span class="bar" style="width:80%"></span></td>
+            <td class="n">52%</td>
+            <td class="n mut">2,913</td></tr><tr>
+            <td><b>7</b>분위</td>
+            <td class="n mut">0.47</td>
+            <td class="n up"><b>+13.7%</b></td>
+            <td><span class="bar" style="width:82%"></span></td>
+            <td class="n">51%</td>
+            <td class="n mut">2,912</td></tr><tr>
+            <td><b>8</b>분위</td>
+            <td class="n mut">0.54</td>
+            <td class="n up"><b>+15.8%</b></td>
+            <td><span class="bar" style="width:94%"></span></td>
+            <td class="n">51%</td>
+            <td class="n mut">2,904</td></tr><tr>
+            <td><b>9</b>분위</td>
+            <td class="n mut">0.65</td>
+            <td class="n up"><b>+16.7%</b></td>
+            <td><span class="bar" style="width:100%"></span></td>
+            <td class="n">50%</td>
+            <td class="n mut">2,908</td></tr><tr>
+            <td><b>10</b>분위</td>
+            <td class="n mut">1.01</td>
+            <td class="n up"><b>+14.6%</b></td>
+            <td><span class="bar" style="width:87%"></span></td>
+            <td class="n">46%</td>
+            <td class="n mut">2,888</td></tr></tbody></table></div>
+      </section><section class="card">
+        <h3>52주 고점 대비<span class="cnt">120거래일 후</span></h3>
+        <p class="origin">1분위 = 고점에서 가장 많이 빠짐</p>
+        <div class="tw"><table class="rank">
+          <thead><tr><th>분위</th><th class="n">구간 평균값</th><th class="n">이후 수익률</th><th>막대</th><th class="n">승률</th><th class="n">표본</th></tr></thead>
+          <tbody><tr>
+            <td><b>1</b>분위</td>
+            <td class="n mut">-0.57</td>
+            <td class="n up"><b>+7.7%</b></td>
+            <td><span class="bar" style="width:51%"></span></td>
+            <td class="n">45%</td>
+            <td class="n mut">2,929</td></tr><tr>
+            <td><b>2</b>분위</td>
+            <td class="n mut">-0.45</td>
+            <td class="n up"><b>+11.7%</b></td>
+            <td><span class="bar" style="width:77%"></span></td>
+            <td class="n">49%</td>
+            <td class="n mut">2,904</td></tr><tr>
+            <td><b>3</b>분위</td>
+            <td class="n mut">-0.38</td>
+            <td class="n up"><b>+10.9%</b></td>
+            <td><span class="bar" style="width:71%"></span></td>
+            <td class="n">48%</td>
+            <td class="n mut">2,908</td></tr><tr>
+            <td><b>4</b>분위</td>
+            <td class="n mut">-0.33</td>
+            <td class="n up"><b>+10.2%</b></td>
+            <td><span class="bar" style="width:67%"></span></td>
+            <td class="n">50%</td>
+            <td class="n mut">2,908</td></tr><tr>
+            <td><b>5</b>분위</td>
+            <td class="n mut">-0.29</td>
+            <td class="n up"><b>+12.3%</b></td>
+            <td><span class="bar" style="width:81%"></span></td>
+            <td class="n">52%</td>
+            <td class="n mut">2,898</td></tr><tr>
+            <td><b>6</b>분위</td>
+            <td class="n mut">-0.25</td>
+            <td class="n up"><b>+11.9%</b></td>
+            <td><span class="bar" style="width:78%"></span></td>
+            <td class="n">51%</td>
+            <td class="n mut">2,913</td></tr><tr>
+            <td><b>7</b>분위</td>
+            <td class="n mut">-0.21</td>
+            <td class="n up"><b>+14.4%</b></td>
+            <td><span class="bar" style="width:95%"></span></td>
+            <td class="n">53%</td>
+            <td class="n mut">2,912</td></tr><tr>
+            <td><b>8</b>분위</td>
+            <td class="n mut">-0.16</td>
+            <td class="n up"><b>+13.8%</b></td>
+            <td><span class="bar" style="width:90%"></span></td>
+            <td class="n">54%</td>
+            <td class="n mut">2,904</td></tr><tr>
+            <td><b>9</b>분위</td>
+            <td class="n mut">-0.11</td>
+            <td class="n up"><b>+15.2%</b></td>
+            <td><span class="bar" style="width:100%"></span></td>
+            <td class="n">55%</td>
+            <td class="n mut">2,908</td></tr><tr>
+            <td><b>10</b>분위</td>
+            <td class="n mut">-0.05</td>
+            <td class="n up"><b>+15.2%</b></td>
+            <td><span class="bar" style="width:100%"></span></td>
+            <td class="n">55%</td>
+            <td class="n mut">2,888</td></tr></tbody></table></div>
+      </section><section class="card">
+        <h3>RSI(14)<span class="cnt">120거래일 후</span></h3>
+        <p class="origin">1분위 = 가장 과매도</p>
+        <div class="tw"><table class="rank">
+          <thead><tr><th>분위</th><th class="n">구간 평균값</th><th class="n">이후 수익률</th><th>막대</th><th class="n">승률</th><th class="n">표본</th></tr></thead>
+          <tbody><tr>
+            <td><b>1</b>분위</td>
+            <td class="n mut">23.43</td>
+            <td class="n up"><b>+9.7%</b></td>
+            <td><span class="bar" style="width:64%"></span></td>
+            <td class="n">50%</td>
+            <td class="n mut">2,929</td></tr><tr>
+            <td><b>2</b>분위</td>
+            <td class="n mut">33.57</td>
+            <td class="n up"><b>+13.6%</b></td>
+            <td><span class="bar" style="width:89%"></span></td>
+            <td class="n">52%</td>
+            <td class="n mut">2,904</td></tr><tr>
+            <td><b>3</b>분위</td>
+            <td class="n mut">39.04</td>
+            <td class="n up"><b>+11.2%</b></td>
+            <td><span class="bar" style="width:74%"></span></td>
+            <td class="n">51%</td>
+            <td class="n mut">2,908</td></tr><tr>
+            <td><b>4</b>분위</td>
+            <td class="n mut">43.46</td>
+            <td class="n up"><b>+12.6%</b></td>
+            <td><span class="bar" style="width:83%"></span></td>
+            <td class="n">51%</td>
+            <td class="n mut">2,908</td></tr><tr>
+            <td><b>5</b>분위</td>
+            <td class="n mut">47.58</td>
+            <td class="n up"><b>+11.2%</b></td>
+            <td><span class="bar" style="width:74%"></span></td>
+            <td class="n">52%</td>
+            <td class="n mut">2,898</td></tr><tr>
+            <td><b>6</b>분위</td>
+            <td class="n mut">51.42</td>
+            <td class="n up"><b>+11.0%</b></td>
+            <td><span class="bar" style="width:72%"></span></td>
+            <td class="n">49%</td>
+            <td class="n mut">2,913</td></tr><tr>
+            <td><b>7</b>분위</td>
+            <td class="n mut">55.57</td>
+            <td class="n up"><b>+12.7%</b></td>
+            <td><span class="bar" style="width:84%"></span></td>
+            <td class="n">52%</td>
+            <td class="n mut">2,912</td></tr><tr>
+            <td><b>8</b>분위</td>
+            <td class="n mut">60.12</td>
+            <td class="n up"><b>+13.5%</b></td>
+            <td><span class="bar" style="width:89%"></span></td>
+            <td class="n">51%</td>
+            <td class="n mut">2,904</td></tr><tr>
+            <td><b>9</b>분위</td>
+            <td class="n mut">66.04</td>
+            <td class="n up"><b>+12.4%</b></td>
+            <td><span class="bar" style="width:82%"></span></td>
+            <td class="n">53%</td>
+            <td class="n mut">2,908</td></tr><tr>
+            <td><b>10</b>분위</td>
+            <td class="n mut">76.90</td>
+            <td class="n up"><b>+15.2%</b></td>
+            <td><span class="bar" style="width:100%"></span></td>
+            <td class="n">51%</td>
+            <td class="n mut">2,888</td></tr></tbody></table></div>
+      </section>
+        <section class="card">
+        <h3>PBR<span class="cnt">240거래일 후</span></h3>
+        <p class="origin">1분위 = 가장 싸다(저PBR) · 표본 1,730건 · 연간보고서 공시 4개월 후 기준으로 재구성</p>
+        <div class="tw"><table class="rank">
+          <thead><tr><th>분위</th><th class="n">구간 평균값</th><th class="n">이후 수익률</th><th>막대</th><th class="n">승률</th><th class="n">표본</th></tr></thead>
+          <tbody><tr>
+            <td><b>1</b>분위</td>
+            <td class="n mut">0.25</td>
+            <td class="n up"><b>+35.2%</b></td>
+            <td><span class="bar" style="width:58%"></span></td>
+            <td class="n">68%</td>
+            <td class="n mut">170</td></tr><tr>
+            <td><b>2</b>분위</td>
+            <td class="n mut">0.38</td>
+            <td class="n up"><b>+32.8%</b></td>
+            <td><span class="bar" style="width:54%"></span></td>
+            <td class="n">64%</td>
+            <td class="n mut">169</td></tr><tr>
+            <td><b>3</b>분위</td>
+            <td class="n mut">0.53</td>
+            <td class="n up"><b>+60.3%</b></td>
+            <td><span class="bar" style="width:100%"></span></td>
+            <td class="n">60%</td>
+            <td class="n mut">169</td></tr><tr>
+            <td><b>4</b>분위</td>
+            <td class="n mut">0.75</td>
+            <td class="n up"><b>+38.5%</b></td>
+            <td><span class="bar" style="width:64%"></span></td>
+            <td class="n">62%</td>
+            <td class="n mut">169</td></tr><tr>
+            <td><b>5</b>분위</td>
+            <td class="n mut">1.05</td>
+            <td class="n up"><b>+39.3%</b></td>
+            <td><span class="bar" style="width:65%"></span></td>
+            <td class="n">58%</td>
+            <td class="n mut">169</td></tr><tr>
+            <td><b>6</b>분위</td>
+            <td class="n mut">1.46</td>
+            <td class="n up"><b>+47.0%</b></td>
+            <td><span class="bar" style="width:78%"></span></td>
+            <td class="n">59%</td>
+            <td class="n mut">169</td></tr><tr>
+            <td><b>7</b>분위</td>
+            <td class="n mut">1.99</td>
+            <td class="n up"><b>+51.5%</b></td>
+            <td><span class="bar" style="width:85%"></span></td>
+            <td class="n">59%</td>
+            <td class="n mut">169</td></tr><tr>
+            <td><b>8</b>분위</td>
+            <td class="n mut">2.78</td>
+            <td class="n up"><b>+59.6%</b></td>
+            <td><span class="bar" style="width:99%"></span></td>
+            <td class="n">53%</td>
+            <td class="n mut">169</td></tr><tr>
+            <td><b>9</b>분위</td>
+            <td class="n mut">4.68</td>
+            <td class="n up"><b>+50.6%</b></td>
+            <td><span class="bar" style="width:84%"></span></td>
+            <td class="n">54%</td>
+            <td class="n mut">169</td></tr><tr>
+            <td><b>10</b>분위</td>
+            <td class="n mut">15.14</td>
+            <td class="n up"><b>+57.1%</b></td>
+            <td><span class="bar" style="width:95%"></span></td>
+            <td class="n">54%</td>
+            <td class="n mut">169</td></tr></tbody></table></div>
+      </section><section class="card">
+        <h3>PER<span class="cnt">240거래일 후</span></h3>
+        <p class="origin">1분위 = 가장 싸다(저PER). 적자 기업 제외 · 표본 1,730건 · 연간보고서 공시 4개월 후 기준으로 재구성</p>
+        <div class="tw"><table class="rank">
+          <thead><tr><th>분위</th><th class="n">구간 평균값</th><th class="n">이후 수익률</th><th>막대</th><th class="n">승률</th><th class="n">표본</th></tr></thead>
+          <tbody><tr>
+            <td><b>1</b>분위</td>
+            <td class="n mut">3.22</td>
+            <td class="n up"><b>+32.5%</b></td>
+            <td><span class="bar" style="width:46%"></span></td>
+            <td class="n">66%</td>
+            <td class="n mut">130</td></tr><tr>
+            <td><b>2</b>분위</td>
+            <td class="n mut">5.21</td>
+            <td class="n up"><b>+39.3%</b></td>
+            <td><span class="bar" style="width:56%"></span></td>
+            <td class="n">68%</td>
+            <td class="n mut">130</td></tr><tr>
+            <td><b>3</b>분위</td>
+            <td class="n mut">7.15</td>
+            <td class="n up"><b>+70.5%</b></td>
+            <td><span class="bar" style="width:100%"></span></td>
+            <td class="n">65%</td>
+            <td class="n mut">130</td></tr><tr>
+            <td><b>4</b>분위</td>
+            <td class="n mut">9.13</td>
+            <td class="n up"><b>+30.3%</b></td>
+            <td><span class="bar" style="width:43%"></span></td>
+            <td class="n">69%</td>
+            <td class="n mut">130</td></tr><tr>
+            <td><b>5</b>분위</td>
+            <td class="n mut">11.43</td>
+            <td class="n up"><b>+38.4%</b></td>
+            <td><span class="bar" style="width:54%"></span></td>
+            <td class="n">61%</td>
+            <td class="n mut">128</td></tr><tr>
+            <td><b>6</b>분위</td>
+            <td class="n mut">14.68</td>
+            <td class="n up"><b>+40.1%</b></td>
+            <td><span class="bar" style="width:57%"></span></td>
+            <td class="n">58%</td>
+            <td class="n mut">130</td></tr><tr>
+            <td><b>7</b>분위</td>
+            <td class="n mut">20.09</td>
+            <td class="n up"><b>+34.0%</b></td>
+            <td><span class="bar" style="width:48%"></span></td>
+            <td class="n">57%</td>
+            <td class="n mut">130</td></tr><tr>
+            <td><b>8</b>분위</td>
+            <td class="n mut">28.36</td>
+            <td class="n up"><b>+43.3%</b></td>
+            <td><span class="bar" style="width:61%"></span></td>
+            <td class="n">57%</td>
+            <td class="n mut">130</td></tr><tr>
+            <td><b>9</b>분위</td>
+            <td class="n mut">48.44</td>
+            <td class="n up"><b>+52.8%</b></td>
+            <td><span class="bar" style="width:75%"></span></td>
+            <td class="n">53%</td>
+            <td class="n mut">130</td></tr><tr>
+            <td><b>10</b>분위</td>
+            <td class="n mut">506.07</td>
+            <td class="n up"><b>+27.6%</b></td>
+            <td><span class="bar" style="width:39%"></span></td>
+            <td class="n">54%</td>
+            <td class="n mut">128</td></tr></tbody></table></div>
       </section>
       </div></div>
 
