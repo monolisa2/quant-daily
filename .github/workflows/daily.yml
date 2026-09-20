@@ -2,7 +2,7 @@ name: Daily Quant Brief
 
 on:
   schedule:
-    - cron: '30 21 * * 0-4'
+    - cron: '20 20 * * 0-4'
   workflow_dispatch:
 
 permissions:
