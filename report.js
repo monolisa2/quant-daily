@@ -25,7 +25,9 @@
   };
   const capS = (eok) => (eok >= 10000 ? (eok / 10000).toFixed(1) + '조' : Math.round(eok).toLocaleString() + '억');
   const fmtD = (d) => (d ? `${d.slice(0, 4)}.${d.slice(4, 6)}.${d.slice(6, 8)}` : '');
-  const nlink = (c) => `https://finance.naver.com/item/main.naver?code=${c}`;
+  // finance.naver.com/item/main.naver 는 PC SPA(stock.naver.com)로 리다이렉트되면서
+  // 클라이언트 예외가 나는 경우가 있다. 모바일 페이지는 PC·폰 모두 정상이다.
+  const nlink = (c) => `https://m.stock.naver.com/domestic/stock/${c}/total`;
 
   async function loadJSON(p, fallback = null) {
     try { return JSON.parse(await _fs().readFile(p, 'utf8')); } catch { return fallback; }
@@ -170,13 +172,13 @@
         <td class="n ${cls(r.ret1)}">${pctS(r.ret1)}</td>
         <td class="n ${cls(r.ret20)}">${pctS(r.ret20)}</td>
         <td class="n">${capS(r.capEok)}</td>
-        <td class="n">${won(r.tradeVal)}</td>
-        <td class="n">${r.volRatio ? r.volRatio.toFixed(1) + 'x' : '-'}</td>
+        <td class="n c-opt">${won(r.tradeVal)}</td>
+        <td class="n c-opt">${r.volRatio ? r.volRatio.toFixed(1) + 'x' : '-'}</td>
         ${extra}
       </tr>`;
     };
     const stockTable = (list, opts = {}) => `<div class="tw"><table>
-      <thead><tr><th>종목</th><th class="n">종가</th><th class="n">1일</th><th class="n">20일</th><th class="n">시총</th><th class="n">거래대금</th><th class="n">거래량</th>${opts.head || ''}</tr></thead>
+      <thead><tr><th>종목</th><th class="n">종가</th><th class="n">1일</th><th class="n">20일</th><th class="n">시총</th><th class="n c-opt">거래대금</th><th class="n c-opt">거래량</th>${opts.head || ''}</tr></thead>
       <tbody>${list.map((r) => stockRow(r, opts)).join('')}</tbody></table></div>`;
 
     /* --- 전략 카드 --- */
@@ -221,14 +223,14 @@
       const rows = STRATEGIES.map((S) => ({ S, h: BT?.strat?.[S.id]?.h?.[hk] })).filter((x) => x.h)
         .sort((a, b) => b.h.edge - a.h.edge);
       return `<div class="tw"><table class="rank">
-        <thead><tr><th>전략</th><th class="n">승률</th><th class="n">평균수익</th><th class="n">시장대비</th><th class="n">목표달성률</th><th class="n">표본</th><th class="n">오늘</th></tr></thead>
+        <thead><tr><th>전략</th><th class="n">승률</th><th class="n">평균수익</th><th class="n">시장대비</th><th class="n c-opt">목표달성률</th><th class="n c-opt">표본</th><th class="n">오늘</th></tr></thead>
         <tbody>${rows.map(({ S, h }) => `<tr class="${h.edge > 0 ? '' : 'dim'}">
           <td>${S.horizon === hk ? '<b>' : ''}${esc(S.name)}${S.horizon === hk ? '</b>' : ''}</td>
           <td class="n">${pctP(h.win, 0)}</td>
           <td class="n ${cls(h.avg)}">${pctS(h.avg)}</td>
           <td class="n ${cls(h.edge)}"><b>${pctS(h.edge, 2)}p</b></td>
-          <td class="n">${pctP(h.hitTarget, 0)}</td>
-          <td class="n mut">${h.n.toLocaleString()}</td>
+          <td class="n c-opt">${pctP(h.hitTarget, 0)}</td>
+          <td class="n mut c-opt">${h.n.toLocaleString()}</td>
           <td class="n">${R.strat[S.id].total}</td></tr>`).join('')}</tbody></table></div>`;
     };
 
@@ -322,14 +324,14 @@
         <h3>${esc(block.meta.name)}<span class="cnt">${block.fwd}거래일 후</span></h3>
         <p class="origin">${esc(block.meta.note)}${unitNote ? ' · ' + esc(unitNote) : ''}</p>
         <div class="tw"><table class="rank">
-          <thead><tr><th>분위</th><th class="n">구간 평균값</th><th class="n">이후 수익률</th><th>막대</th><th class="n">승률</th><th class="n">표본</th></tr></thead>
+          <thead><tr><th>분위</th><th class="n">구간 평균값</th><th class="n">이후 수익률</th><th class="c-opt">막대</th><th class="n">승률</th><th class="n c-opt">표본</th></tr></thead>
           <tbody>${ds.map((d) => `<tr>
             <td><b>${d.d}</b>분위</td>
             <td class="n mut">${d.avgVal == null ? '-' : (Math.abs(d.avgVal) > 1000 ? Math.round(d.avgVal).toLocaleString() : d.avgVal.toFixed(2))}</td>
             <td class="n ${cls(d.avgRet)}"><b>${pctS(d.avgRet)}</b></td>
-            <td><span class="bar" style="width:${max ? Math.round(Math.abs(d.avgRet || 0) / max * 100) : 0}%"></span></td>
+            <td class="c-opt"><span class="bar" style="width:${max ? Math.round(Math.abs(d.avgRet || 0) / max * 100) : 0}%"></span></td>
             <td class="n">${pctP(d.win, 0)}</td>
-            <td class="n mut">${d.n.toLocaleString()}</td></tr>`).join('')}</tbody></table></div>
+            <td class="n mut c-opt">${d.n.toLocaleString()}</td></tr>`).join('')}</tbody></table></div>
       </section>`;
     };
 
@@ -375,7 +377,9 @@
     };
 
     return `<!doctype html><html lang="ko"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#15181d">
+<meta name="format-detection" content="telephone=no">
 <title>퀀트 브리핑 ${fmtD(R.baseDate)}</title>
 <style>
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
@@ -411,7 +415,7 @@ h2 small{font-size:13px;font-weight:400;color:var(--mut);margin-left:6px}
 .caution{margin:0 0 6px;font-size:12.5px;color:#8c5200;background:#fff5e3;border-radius:8px;padding:8px 11px}
 .risk{margin:0 0 10px;font-size:12.5px;background:#f3f4f7;border-radius:8px;padding:8px 11px;color:#3a3f49}
 .bench{margin:0 0 10px;font-size:12.5px;color:#3a3f49;background:#f3f4f7;border-radius:8px;padding:8px 11px}
-.tw{overflow-x:auto}
+.tw{overflow-x:auto;min-width:0;max-width:100%}
 table{width:100%;border-collapse:collapse;font-size:13.5px;margin-bottom:8px}
 th{text-align:left;font-size:11px;color:var(--mut);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
 td{padding:7px 8px;border-bottom:1px solid #f2f3f6;white-space:nowrap}
@@ -427,7 +431,8 @@ table.mini{font-size:12px;margin-top:8px}
 .past.good{background:#e2f6e8;color:#137a37}.past.ok{background:#f0f1f4;color:#4b5158}.past.bad{background:#fdeaea;color:#c22}
 .picks{display:grid;grid-template-columns:1fr;gap:9px;margin-bottom:8px}
 @media(min-width:820px){.picks{grid-template-columns:1fr 1fr}}
-.pick{border:1px solid var(--line);border-radius:11px;padding:11px 13px;background:#fcfcfd}
+.pick{border:1px solid var(--line);border-radius:11px;padding:11px 13px;background:#fcfcfd;min-width:0}
+.picks>*,.cols>*{min-width:0}
 .pick.mine{border-color:var(--acc)}
 .ph{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .ph a{font-size:16px;font-weight:700;color:inherit;text-decoration:none}
@@ -461,6 +466,52 @@ input[name=tb]{display:none}
 .bar{display:inline-block;height:9px;background:#2b6cf6;border-radius:3px;min-width:2px;vertical-align:middle}
 .lead h2{margin-top:26px}
 footer{margin-top:36px;font-size:11.5px;color:var(--mut);line-height:1.8;border-top:1px solid var(--line);padding-top:14px}
+
+/* ---------------- 모바일 ---------------- */
+@media(max-width:680px){
+  body{font-size:14px}
+  .wrap{padding:14px 10px 60px}
+  header h1{font-size:21px}
+  header p{font-size:11px;line-height:1.55}
+  h2{font-size:17px;margin:22px 0 10px}
+  h2 small{display:block;margin:2px 0 0 0;font-size:11.5px}
+  .c-opt{display:none}
+  .mgrid{grid-template-columns:repeat(2,1fr);gap:7px}
+  .mcard{padding:9px 10px;border-radius:10px}
+  .mcard .mp{font-size:16px}
+  .mcard .ml{font-size:11px}
+  .mcard .mr{font-size:12px}
+  .tabs{flex-wrap:wrap;gap:5px;padding:8px 0}
+  .tabs label{flex:1 1 calc(50% - 3px);padding:8px 4px;font-size:13px;border-radius:9px}
+  .tabs label small{font-size:10px;margin-top:1px}
+  .card{padding:13px 12px 6px;border-radius:11px;margin-bottom:10px}
+  .card h3{font-size:15.5px;gap:5px}
+  .cnt{font-size:10.5px;padding:2px 7px}
+  .why,.caution,.risk,.bench{font-size:12.5px;padding:8px 10px}
+  .origin{font-size:11px}
+  .badges{gap:5px}
+  .badge{flex:1 1 calc(50% - 3px);min-width:0;padding:6px 8px;font-size:11px}
+  .badge b{font-size:11.5px}
+  table{font-size:12.5px}
+  th{font-size:10.5px;padding:5px 5px}
+  td{padding:6px 5px}
+  .cd{font-size:10px}
+  .nm a{font-size:13px}
+  .past{font-size:10.5px;padding:2px 5px}
+  .pick{padding:10px 11px}
+  .ph a{font-size:15px}
+  .ph .pr{margin-left:0;width:100%;font-size:13px}
+  .meta{font-size:11px;line-height:1.55}
+  .chip{font-size:10.5px;padding:2px 6px}
+  .chip i{display:none}
+  .nw{font-size:11.5px}
+  .card.note p{font-size:12.5px}
+  footer{font-size:11px}
+}
+@media(max-width:400px){
+  .tabs label{font-size:12px}
+  table{font-size:12px}
+}
 </style></head><body><div class="wrap">
 <header>
   <h1>퀀트 브리핑</h1>
