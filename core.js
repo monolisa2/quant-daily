@@ -37,8 +37,9 @@
   /* ================================================================ *
    * 1. 수집
    * ================================================================ */
-  const EXCLUDE_NAME = /(스팩|제\d+호)/;
-  const PREF = /(우$|우B$|우C$|[0-9]우B?$)/;
+  const EXCLUDE_NAME = /(스팩|제\d+호|리츠)/;
+  // 우선주: 끝이 '우', '우B/C', '2우(전환)', '3우B' 등
+  const PREF = /(\d?우[A-C]?(\(전환\))?)$/;
 
   async function fetchUniverse() {
     const out = [];
@@ -477,6 +478,396 @@
     return finalizeAcc(acc);
   }
 
+  /* ---------------------------------------------------------------- *
+   * 팩터 구간(10분위) 분석 — 문병로 『메트릭 스튜디오』 방법론
+   * "PER이 낮을수록 좋다"가 아니라 "구간별로 이렇게 비선형이다"를 본다.
+   * ---------------------------------------------------------------- */
+  const PRICE_FACTORS = [
+    { id: 'cap', name: '시가총액', get: (r) => r.capEok, asc: true, fmt: 'cap',
+      note: '1분위 = 가장 작은 회사. 소형주 효과 확인용' },
+    { id: 'mom', name: '12-1 모멘텀', get: (r) => r.mom12_1, asc: true, fmt: 'pct',
+      note: '1분위 = 가장 많이 하락. 10분위 = 가장 많이 상승' },
+    { id: 'vola', name: '변동성(20일)', get: (r) => r.vola20, asc: true, fmt: 'pct',
+      note: '1분위 = 가장 안 흔들림' },
+    { id: 'fromHigh', name: '52주 고점 대비', get: (r) => r.fromHigh, asc: true, fmt: 'pct',
+      note: '1분위 = 고점에서 가장 많이 빠짐' },
+    { id: 'rsi', name: 'RSI(14)', get: (r) => r.rsi14, asc: true, fmt: 'num',
+      note: '1분위 = 가장 과매도' },
+  ];
+
+  /** 패널 샘플링(20거래일마다). 청크로 나눠 모을 수 있도록 분리. */
+  function pricePanel(stocks, bulk, opts = {}) {
+    const { minAvgValEok = 5, warmup = 250, step = 20, fwd = 120 } = opts;
+    const panel = [];
+    for (const st of stocks) {
+      const C = bulk.get(st.code);
+      if (!C || !C.c || C.c.length < warmup + fwd + 10) continue;
+      const S = buildSeries(st, C);
+      if (!S) continue;
+      const c = C.c, n = c.length, end = n - fwd - 1;
+      for (let i = warmup; i <= end; i += step) {
+        const r = S.at(i);
+        if (!r || !r.avgVal20 || r.avgVal20 < minAvgValEok * 1e8) continue;
+        const ret = c[i + fwd] / c[i] - 1;
+        if (!isFinite(ret)) continue;
+        const rec = { d: r.date, ret };
+        for (const F of PRICE_FACTORS) rec[F.id] = F.get(r);
+        panel.push(rec);
+      }
+    }
+    return panel;
+  }
+  function priceDeciles(stocks, bulk, opts = {}) {
+    return decileFrom(pricePanel(stocks, bulk, opts), PRICE_FACTORS, opts.fwd ?? 120);
+  }
+
+  function decileFrom(panel, factors, fwd) {
+    const byDate = new Map();
+    for (const p of panel) {
+      if (!byDate.has(p.d)) byDate.set(p.d, []);
+      byDate.get(p.d).push(p);
+    }
+    const res = {};
+    for (const F of factors) {
+      const buckets = Array.from({ length: 10 }, () => []);
+      for (const [, arr] of byDate) {
+        const v = arr.filter((x) => x[F.id] != null && isFinite(x[F.id]));
+        if (v.length < 30) continue;
+        v.sort((a, b) => (F.asc ? a[F.id] - b[F.id] : b[F.id] - a[F.id]));
+        const per = v.length / 10;
+        v.forEach((x, k) => { buckets[Math.min(9, Math.floor(k / per))].push(x); });
+      }
+      res[F.id] = {
+        meta: F, fwd,
+        deciles: buckets.map((b, i) => ({
+          d: i + 1, n: b.length,
+          avgRet: b.length ? b.reduce((a, x) => a + x.ret, 0) / b.length : null,
+          win: b.length ? b.filter((x) => x.ret > 0).length / b.length : null,
+          avgVal: b.length ? b.reduce((a, x) => a + x[F.id], 0) / b.length : null,
+        })),
+      };
+    }
+    return res;
+  }
+
+  /**
+   * 밸류 팩터(PBR/PER) 구간 분석
+   * 연간 BPS/EPS 를 사업연도 종료 4개월 뒤부터 사용 가능하다고 보고
+   * 그 시점의 주가로 PBR = P / BPS, PER = P / EPS 를 재구성한다.
+   * (주당지표라 주식수 변동은 상쇄된다)
+   */
+  const VALUE_FACTORS = [
+    { id: 'pbr', name: 'PBR', asc: true, fmt: 'num', note: '1분위 = 가장 싸다(저PBR)' },
+    { id: 'per', name: 'PER', asc: true, fmt: 'num', note: '1분위 = 가장 싸다(저PER). 적자 기업 제외' },
+  ];
+  function valuePanel(stocks, bulk, fundMap, opts = {}) {
+    const { fwd = 240, lagMonths = 4 } = opts;
+    const panel = [];
+    for (const st of stocks) {
+      const C = bulk.get(st.code);
+      const f = fundMap.get(st.code);
+      if (!C || !C.c || !f?.annual?.keys?.length) continue;
+      const { keys, bps, eps } = f.annual;
+      for (let k = 0; k < keys.length; k++) {
+        const fy = keys[k];                       // '202312'
+        const y = +fy.slice(0, 4), m = +fy.slice(4, 6);
+        const dt = new Date(Date.UTC(y, m - 1 + lagMonths, 1));
+        const ymd = dt.toISOString().slice(0, 10).replace(/-/g, '');
+        let i = C.d.findIndex((d) => d >= ymd);
+        if (i < 0 || i + fwd >= C.c.length) continue;
+        const p = C.c[i];
+        const ret = C.c[i + fwd] / p - 1;
+        if (!isFinite(ret)) continue;
+        panel.push({
+          d: ymd, ret,
+          pbr: bps[k] > 0 ? p / bps[k] : null,
+          per: eps[k] > 0 ? p / eps[k] : null,
+        });
+      }
+    }
+    return panel;
+  }
+  function valueDeciles(stocks, bulk, fundMap, opts = {}) {
+    const panel = valuePanel(stocks, bulk, fundMap, opts);
+    return { result: decileFrom(panel, VALUE_FACTORS, opts.fwd ?? 240), samples: panel.length };
+  }
+
+  /* ================================================================ *
+   * 4.5 재무 데이터 (밸류·퀄리티 팩터용)
+   * ------------------------------------------------------------------
+   * 네이버 모바일 재무 API. 단위는 억원.
+   * 매출원가·영업현금흐름은 무료로 못 받아서
+   *   GP/A -> OP/A(영업이익/자산, Fama-French RMW 계열)
+   *   PCR  -> POR(시총/영업이익)
+   * 로 대체한다.
+   * ================================================================ */
+  const rowMap = (rowList) => Object.fromEntries((rowList || []).map((r) => [r.title, r.columns || {}]));
+
+  async function fetchFundamental(stock) {
+    const code = stock.code;
+    const [fq, fa, ig] = await Promise.all([
+      getJSON(`${M}/api/stock/${code}/finance/quarter`),
+      getJSON(`${M}/api/stock/${code}/finance/annual`),
+      getJSON(`${M}/api/stock/${code}/integration`),
+    ]);
+    if (!fq?.financeInfo && !fa?.financeInfo) return null;
+
+    const pick = (fi) => {
+      if (!fi) return null;
+      const cols = (fi.trTitleList || []).filter((t) => t.isConsensus !== 'Y').map((t) => t.key);
+      return { cols, rows: rowMap(fi.rowList) };
+    };
+    const Qd = pick(fq?.financeInfo);
+    const Ad = pick(fa?.financeInfo);
+
+    const sum = (d, title, n) => {
+      if (!d) return null;
+      const ks = d.cols.slice(-n);
+      if (ks.length < n) return null;
+      let s = 0;
+      for (const k of ks) {
+        const v = d.rows[title]?.[k]?.value;
+        if (v == null || v === '') return null;
+        s += num(v);
+      }
+      return s;
+    };
+    const last = (d, title) => {
+      if (!d) return null;
+      for (let i = d.cols.length - 1; i >= 0; i--) {
+        const v = d.rows[title]?.[d.cols[i]]?.value;
+        if (v != null && v !== '') return num(v);
+      }
+      return null;
+    };
+    const series = (d, title, n) => {
+      if (!d) return [];
+      return d.cols.slice(-n).map((k) => {
+        const v = d.rows[title]?.[k]?.value;
+        return v == null || v === '' ? null : num(v);
+      }).filter((x) => x != null);
+    };
+
+    // TTM (최근 4분기). 분기가 모자라면 연간 최근치로 대체
+    const ttmSales = sum(Qd, '매출액', 4) ?? last(Ad, '매출액');
+    const ttmOp = sum(Qd, '영업이익', 4) ?? last(Ad, '영업이익');
+    const ttmNi = sum(Qd, '지배주주순이익', 4) ?? sum(Qd, '당기순이익', 4)
+                  ?? last(Ad, '지배주주순이익') ?? last(Ad, '당기순이익');
+    const bps = last(Qd, 'BPS') ?? last(Ad, 'BPS');
+    const debtRatio = last(Qd, '부채비율') ?? last(Ad, '부채비율');
+    const roeHist = series(Ad, 'ROE', 3);
+    // 연도별 주당지표 (과거 PBR/PER 재구성용). 주당값이라 주식수 변동과 무관하다.
+    const annual = Ad ? {
+      keys: Ad.cols.slice(),
+      bps: Ad.cols.map((k) => { const v = Ad.rows['BPS']?.[k]?.value; return v ? num(v) : null; }),
+      eps: Ad.cols.map((k) => { const v = Ad.rows['EPS']?.[k]?.value; return v ? num(v) : null; }),
+    } : null;
+
+    const info = {};
+    for (const t of (ig?.totalInfos || [])) info[t.code] = t.value;
+    const per = num(info.per) || null;
+    const pbr = num(info.pbr) || null;
+    const divYield = num(info.dividendYieldRatio) || 0;
+
+    const price = stock.price || 0;
+    const capEok = stock.capEok || 0;
+    const shares = price > 0 ? (capEok * 1e8) / price : null;          // 주식수
+    const equity = shares && bps ? (bps * shares) / 1e8 : null;        // 자기자본(억원)
+    const assets = equity && debtRatio != null ? equity * (1 + debtRatio / 100) : null;
+
+    const pbrCalc = equity > 0 ? capEok / equity : null;
+    const perCalc = ttmNi > 0 ? capEok / ttmNi : null;
+    const psr = ttmSales > 0 ? capEok / ttmSales : null;
+    const por = ttmOp > 0 ? capEok / ttmOp : null;
+    const opa = assets > 0 && ttmOp != null ? ttmOp / assets : null;   // GP/A 대용
+    const roeTtm = equity > 0 && ttmNi != null ? ttmNi / equity : null;
+    const roa = assets > 0 && ttmNi != null ? ttmNi / assets : null;
+
+    return {
+      code, per: per ?? perCalc, pbr: pbr ?? pbrCalc, perCalc, pbrCalc,
+      psr, por, opa, roeTtm, roa, divYield,
+      bps, eps: num(info.eps) || null, debtRatio,
+      ttmSales, ttmOp, ttmNi, shares, equity, assets, roeHist, annual,
+      profitable: ttmNi > 0, opProfitable: ttmOp > 0,
+    };
+  }
+
+  async function fetchFundamentalsBulk(stocks, { concurrency = 30, onProgress } = {}) {
+    const res = new Map();
+    let done = 0;
+    for (let i = 0; i < stocks.length; i += concurrency) {
+      const chunk = stocks.slice(i, i + concurrency);
+      const got = await Promise.all(chunk.map((s) => fetchFundamental(s).catch(() => null)));
+      chunk.forEach((s, k) => { if (got[k]) res.set(s.code, got[k]); });
+      done += chunk.length;
+      if (onProgress && done % (concurrency * 10) === 0) onProgress(done, stocks.length);
+    }
+    return res;
+  }
+
+  /* ---------------------------------------------------------------- *
+   * 순위·백분위 유틸
+   * ---------------------------------------------------------------- */
+  /** 값이 작을수록 좋은 지표 -> 0(최고)~1(최저) 백분위. null 은 null */
+  function pctRank(list, getter, asc = true) {
+    const vals = list.map((x, i) => ({ i, v: getter(x) })).filter((o) => o.v != null && isFinite(o.v));
+    vals.sort((a, b) => (asc ? a.v - b.v : b.v - a.v));
+    const out = new Array(list.length).fill(null);
+    vals.forEach((o, k) => { out[o.i] = vals.length > 1 ? k / (vals.length - 1) : 0; });
+    return out;
+  }
+
+  /* ================================================================ *
+   * 4.7 책 기반 포트폴리오 전략 (국내 퀀트 저자 계열)
+   * ------------------------------------------------------------------
+   * 시그널형 STRATEGIES 와 달리 "순위 상위 N종목을 분산 보유하고
+   * 주기적으로 리밸런싱" 하는 포트폴리오 전략이다.
+   * ================================================================ */
+  const HOLDING = /(홀딩스|지주$)/;
+
+  function investable(r, { minCapEok = 300, minAvgValEok = 3, maxDebt = 400 } = {}) {
+    if (!r.f) return false;
+    if (r.capEok < minCapEok) return false;
+    if (!r.avgVal20 || r.avgVal20 < minAvgValEok * 1e8) return false;
+    if (r.f.debtRatio == null || r.f.debtRatio > maxDebt) return false;
+    if (HOLDING.test(r.name)) return false;
+    if (r.f.equity != null && r.f.equity <= 0) return false;   // 자본잠식
+    return true;
+  }
+
+  const PORTFOLIOS = [
+    {
+      id: 'newmagic1', name: '신마법공식 1.0', author: '강환국 『할 수 있다! 퀀트투자』',
+      formula: '저PBR 순위 + 고 OP/A 순위 합산',
+      rebalance: '분기~반기 1회', hold: 30, small: false,
+      why: '그린블랫의 마법공식(ROC+EV/EBIT)이 한국에서 잘 안 먹혀서, 밸류 지표 1개 + 퀄리티 지표 1개로 단순화한 버전. 싼 가격(저PBR)과 돈 잘 버는 능력(고 수익성)을 동시에 본다.',
+      caution: '원전략은 GP/A(매출총이익/자산)이다. 무료 데이터로 매출원가를 못 받아 영업이익/자산(OP/A)으로 대체했다. 저자 백테스트와 수치가 다를 수 있다.',
+    },
+    {
+      id: 'newmagic2', name: '신마법공식 2.0 (소형주)', author: '강환국 『할 수 있다! 퀀트투자』',
+      formula: '시총 하위 20% 중 저PBR + 고 OP/A 순위 합산',
+      rebalance: '분기~반기 1회', hold: 30, small: true,
+      why: '같은 공식을 소형주에만 적용. 책의 백테스트에서 소형주 제한을 걸었을 때 연복리가 크게 올라갔다. 기관·외국인이 못 건드리는 구간이라 비효율이 남아있다는 해석.',
+      caution: '소형주는 거래량이 적어 사고 팔 때 불리하다(슬리피지). 상장폐지·관리종목 위험도 높으니 반드시 분산하고 공시를 확인해야 한다.',
+    },
+    {
+      id: 'supervalue', name: '슈퍼가치 전략', author: '강환국 『할 수 있다! 퀀트투자』',
+      formula: '시총 하위 20% 중 PER·PBR·PSR·POR 4지표 순위 합산',
+      rebalance: '연 1회 (7월)', hold: 30, small: true,
+      why: '밸류 지표는 시기마다 잘 듣는 게 다르니 하나만 보지 말고 여러 개를 섞으라는 아이디어. 한 지표가 망가져도 나머지가 받쳐준다.',
+      caution: '원전략은 PCR(시총/영업현금흐름)을 쓴다. 현금흐름표를 못 받아 POR(시총/영업이익)로 대체했다.',
+    },
+    {
+      id: 'smallpbr', name: '소형주 저PBR', author: '강환국 『할 수 있다! 퀀트투자』',
+      formula: '시총 하위 20% 중 PBR 낮은 순 (하위 2% 제외)',
+      rebalance: '반기~연 1회', hold: 30, small: true,
+      why: '가장 오래된 밸류 팩터. 자산 대비 싼 주식을 사는 가장 단순한 방법이고, 한국 소형주에서 효과가 가장 세게 나타났다.',
+      caution: 'PBR 극하위 2%는 일부러 불다. 그 정도로 싸면 장부에 안 보이는 중대한 문제가 있을 가능성이 높다는 게 책의 지적이다.',
+    },
+    {
+      id: 'fscore', name: '신 F-스코어 + 저PBR', author: '강환국 (피오트로스키 F-Score 한국형 축소)',
+      formula: '재무 건전성 3개 중 2개 이상 통과 + 저PBR',
+      rebalance: '분기 1회', hold: 25, small: false,
+      why: '피오트로스키의 9개 지표 중 한국에서 유의미했던 것만 추린 버전. "싸기만 한 게 아니라 망하지는 않는 회사"를 걸러내는 게 목적이다.',
+      caution: '원전략 3지표는 신규주식 발행 없음·순이익 흑자·영업현금흐름 흑자다. 현금흐름과 신주발행 데이터가 없어 영업이익 흑자·부채비율 200% 미만으로 대체했다.',
+    },
+    {
+      id: 'srim', name: 'S-RIM 저평가', author: '사경인 『재무제표 모르면 주식투자 절대로 하지 마라』',
+      formula: '적정주가 = 자기자본 + 초과이익의 현재가치 → 괴리율 상위',
+      rebalance: '분기 1회', hold: 25, small: false,
+      why: 'ROE가 요구수익률보다 높은 만큼이 "초과이익"이고, 그걸 자기자본에 더해 적정가를 구한다. 회계사가 만들어 국내 스크리닝 도구에 가장 널리 들어간 적정주가 모델.',
+      caution: '요구수익률(기본 8%)과 초과이익 지속계수(기본 0.8)에 결과가 크게 좌우된다. ROE가 틀리면 적정가도 틀린다. 일회성 이익으로 ROE가 튀어오른 회사를 조심할 것.',
+    },
+    {
+      id: 'absmom_lv', name: '절대모멘텀 + 변동성 역가중', author: 'systrader79 계열',
+      formula: '1년 수익률 플러스 + 120일선 위 → 변동성 낮은 순',
+      rebalance: '월 1회', hold: 20, small: false,
+      why: '먼저 오르는 종목만 남기고(절대모멘텀), 그 안에서 덜 흔들리는 걸 더 많이 담는다(변동성 역가중). 수익률보다 떨어질 때 덜 아프려는 접근이다.',
+      caution: '강세장에서는 변동성 큰 종목이 더 오르기 때문에 뒤처진다. 하락장 방어용에 가깝다.',
+    },
+  ];
+  const PF_BY_ID = Object.fromEntries(PORTFOLIOS.map((p) => [p.id, p]));
+
+  function halloween(date = new Date()) {
+    const m = date.getMonth() + 1;
+    const on = m >= 11 || m <= 4;
+    return { on, month: m,
+      label: on ? '할러윈 구간 (11~4월)' : '비수기 (5~10월)',
+      note: on
+        ? '과거 통계상 11~4월 수익률이 5~10월보다 뚰렵하게 높았던 구간. 강환국이 한국 데이터로도 검증했다.'
+        : '과거 통계상 수익률이 낮았던 구간. Sell in May 격언의 근거. 비중을 줄이거나 보수적으로 보는 것도 방법.' };
+  }
+
+  function buildPortfolios(rows, opts = {}) {
+    const { srimR = 0.08, srimW = 0.8, smallPct = 0.2 } = opts;
+    const pool = rows.filter((r) => investable(r, opts));
+    const byCapAsc = [...pool].sort((a, b) => a.capEok - b.capEok);
+    const smallCut = byCapAsc[Math.max(0, Math.floor(byCapAsc.length * smallPct) - 1)]?.capEok ?? 0;
+    const small = pool.filter((r) => r.capEok <= smallCut);
+
+    const out = {};
+    const mk = (id, list) => {
+      const P = PF_BY_ID[id];
+      out[id] = { meta: P, poolSize: (P.small ? small : pool).length, smallCut, list: list.slice(0, P.hold), total: list.length };
+    };
+
+    const magic = (base) => {
+      const cand = base.filter((r) => r.f.pbr > 0.2 && r.f.opa != null && r.f.opProfitable && r.f.profitable);
+      const rp = pctRank(cand, (r) => r.f.pbr, true);
+      const ro = pctRank(cand, (r) => r.f.opa, false);
+      return cand.map((r, i) => ({ row: r, score: (rp[i] ?? 1) + (ro[i] ?? 1), parts: { PBR: r.f.pbr, 'OP/A': r.f.opa } }))
+        .filter((x) => isFinite(x.score)).sort((a, b) => a.score - b.score);
+    };
+    mk('newmagic1', magic(pool));
+    mk('newmagic2', magic(small));
+
+    const sv = small.filter((r) => r.f.per > 0 && r.f.pbr > 0 && r.f.psr > 0 && r.f.por > 0);
+    const r1 = pctRank(sv, (r) => r.f.per, true), r2 = pctRank(sv, (r) => r.f.pbr, true);
+    const r3 = pctRank(sv, (r) => r.f.psr, true), r4 = pctRank(sv, (r) => r.f.por, true);
+    mk('supervalue', sv.map((r, i) => ({ row: r, score: (r1[i] ?? 1) + (r2[i] ?? 1) + (r3[i] ?? 1) + (r4[i] ?? 1),
+      parts: { PER: r.f.per, PBR: r.f.pbr, PSR: r.f.psr, POR: r.f.por } })).sort((a, b) => a.score - b.score));
+
+    const sp = small.filter((r) => r.f.pbr > 0).sort((a, b) => a.f.pbr - b.f.pbr);
+    const cut2 = Math.floor(sp.length * 0.02);
+    mk('smallpbr', sp.slice(cut2).map((r) => ({ row: r, score: r.f.pbr,
+      parts: { PBR: r.f.pbr, ROE: r.f.roeTtm, '부채비율': r.f.debtRatio } })));
+
+    const fsc = (r) => (r.f.profitable ? 1 : 0) + (r.f.opProfitable ? 1 : 0) + (r.f.debtRatio < 200 ? 1 : 0);
+    const fsl = pool.filter((r) => r.f.pbr > 0.2 && fsc(r) >= 2).sort((a, b) => a.f.pbr - b.f.pbr);
+    mk('fscore', fsl.map((r) => ({ row: r, score: r.f.pbr,
+      parts: { 'F점수': fsc(r) + '/3', PBR: r.f.pbr, '부채비율': r.f.debtRatio } })));
+
+    const srimL = [];
+    for (const r of pool) {
+      const h = r.f.roeHist;
+      if (!h || h.length < 2 || !r.f.equity || !r.f.shares) continue;
+      // 이상치 제거: 일회성·자본잠식으로 ROE가 튀는 경우를 걸러낸다
+      const clean = h.filter((v) => v != null && isFinite(v) && Math.abs(v) < 80);
+      if (clean.length < 2) continue;
+      const wts = clean.length >= 3 ? [1, 2, 3] : [1, 2];
+      const hh = clean.slice(-wts.length);
+      const roe = hh.reduce((a, v, i) => a + v * wts[i], 0) / wts.reduce((a, b) => a + b, 0) / 100;
+      if (!isFinite(roe) || roe <= srimR || roe > 0.5 || !r.f.profitable) continue;
+      if (!(r.f.equity > 0)) continue;
+      const value = r.f.equity + r.f.equity * (roe - srimR) * srimW / (1 + srimR - srimW);
+      const fair = (value * 1e8) / r.f.shares;
+      if (!isFinite(fair) || fair <= 0) continue;
+      const gap = fair / r.close - 1;
+      if (gap <= 0 || gap > 3) continue;   // 괴리율 300% 초과는 데이터 오류 가능성
+      srimL.push({ row: r, score: -gap, parts: { '적정주가': Math.round(fair), '괴리율': gap, 'ROE(가중)': roe, PBR: r.f.pbr } });
+    }
+    mk('srim', srimL.sort((a, b) => a.score - b.score));
+
+    const am = pool.filter((r) => r.ret240 > 0 && r.ma120 && r.close > r.ma120 && r.vola20 > 0);
+    mk('absmom_lv', am.map((r) => ({ row: r, score: r.vola20,
+      parts: { '1년수익률': r.ret240, '변동성': r.vola20 } })).sort((a, b) => a.score - b.score));
+    const amL = out.absmom_lv.list;
+    const tw = amL.reduce((a, x) => a + 1 / x.row.vola20, 0);
+    amL.forEach((x) => { x.weight = (1 / x.row.vola20) / tw; });
+
+    return { pool: pool.length, small: small.length, smallCut, halloween: halloween(), portfolios: out };
+  }
+
   /* ================================================================ *
    * 5. 시장지표 / 뉴스
    * ================================================================ */
@@ -527,8 +918,11 @@
     UA, getJSON, getText, sleep, num,
     fetchUniverse, fetchBars, fetchBarsBulk,
     rollMean, rollMax, rollMin, rsiArr, volaArr, buildSeries,
+    fetchFundamental, fetchFundamentalsBulk, pctRank,
+    PORTFOLIOS, PF_BY_ID, buildPortfolios, investable, halloween,
     STRATEGIES, STRAT_BY_ID, HORIZONS, HK,
     statsOf, backtest, createAcc, feedAcc, finalizeAcc, fwdExtremes,
+    PRICE_FACTORS, VALUE_FACTORS, pricePanel, valuePanel, priceDeciles, valueDeciles, decileFrom,
     fetchMarket, fetchNews,
   };
 })()

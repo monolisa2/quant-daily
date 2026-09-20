@@ -2,7 +2,7 @@
  * 데일리 퀀트 브리핑 — GitHub Actions 실행 엔트리
  *
  *   node run.mjs              오늘자 리포트 생성 → docs/
- *   node run.mjs --backtest   백테스트 강제 재계산
+ *   node run.mjs --backtest   백테스트 + 팩터 구간분석 강제 재계산
  *
  * core.js / report.js 는 Aside REPL 과 완전히 같은 파일을 그대로 쓴다.
  * (브라우저 REPL 과 Node 양쪽에서 돌도록 eval 로드 방식)
@@ -23,44 +23,65 @@ const Q = eval(await fsp.readFile(nodePath.join(ROOT, 'core.js'), 'utf8'));
 const RP = eval(await fsp.readFile(nodePath.join(ROOT, 'report.js'), 'utf8'))(Q);
 
 const log = (...a) => console.log(...a);
-const BACKTEST_MAX_AGE_DAYS = 30;
+const MAX_AGE_DAYS = 30;
 
 /* ------------------------------------------------------------------ *
- * 백테스트 (없거나 30일 이상 오래됐으면 재계산)
+ * 백테스트 + 팩터 구간분석 (없거나 30일 이상 오래됐으면 재계산)
  * ------------------------------------------------------------------ */
 async function ensureBacktest(force = false) {
-  const p = nodePath.join(ROOT, 'backtest.json');
+  const pBt = nodePath.join(ROOT, 'backtest.json');
+  const pDc = nodePath.join(ROOT, 'deciles.json');
   if (!force) {
     try {
-      const bt = JSON.parse(await fsp.readFile(p, 'utf8'));
+      const bt = JSON.parse(await fsp.readFile(pBt, 'utf8'));
+      await fsp.access(pDc);
       const age = (Date.now() - new Date(bt.generatedAt).getTime()) / 86400000;
-      if (age < BACKTEST_MAX_AGE_DAYS) {
+      if (age < MAX_AGE_DAYS) {
         log(`백테스트 최신 (${age.toFixed(0)}일 전 · 표본 ${bt.stockDays.toLocaleString()} 종목-일)`);
         return;
       }
       log(`백테스트 ${age.toFixed(0)}일 경과 → 재계산`);
     } catch {
-      log('백테스트 없음 → 신규 계산');
+      log('백테스트/구간분석 없음 → 신규 계산');
     }
   } else {
-    log('백테스트 강제 재계산');
+    log('강제 재계산');
   }
 
   const uni = await Q.fetchUniverse();
-  const U = uni.filter((s) => s.capEok >= 1000 && s.price > 0).sort((a, b) => b.capEok - a.capEok);
-  log(`  대상 ${U.length}종목`);
+  const sig = uni.filter((s) => s.capEok >= 1000 && s.price > 0).sort((a, b) => b.capEok - a.capEok);
+  const val = uni.filter((s) => s.capEok >= 300 && s.price > 0).sort((a, b) => b.capEok - a.capEok);
+  log(`  시그널 대상 ${sig.length} / 구간분석 대상 ${val.length}`);
+
+  log('  재무 데이터 수집...');
+  const fundMap = await Q.fetchFundamentalsBulk(val, { concurrency: 30 });
+  log(`  재무 ${fundMap.size}종목`);
+
   const acc = Q.createAcc();
+  const pPanel = [], vPanel = [];
+  const sigSet = new Set(sig.map((s) => s.code));
   const t0 = Date.now();
-  for (let i = 0; i < U.length; i += 220) {
-    const part = U.slice(i, i + 220);
+  for (let i = 0; i < val.length; i += 220) {
+    const part = val.slice(i, i + 220);
     const bulk = await Q.fetchBarsBulk(part.map((s) => s.code), { days: 1300 });
-    Q.feedAcc(acc, part, bulk);
+    Q.feedAcc(acc, part.filter((s) => sigSet.has(s.code)), bulk);
+    for (const p of Q.pricePanel(part, bulk)) pPanel.push(p);
+    for (const p of Q.valuePanel(part, bulk, fundMap)) vPanel.push(p);
     bulk.clear();
-    log(`  ${Math.min(i + 220, U.length)}/${U.length} (${((Date.now() - t0) / 1000).toFixed(0)}s)`);
+    log(`  ${Math.min(i + 220, val.length)}/${val.length} (${((Date.now() - t0) / 1000).toFixed(0)}s)`);
   }
+
   const BT = Q.finalizeAcc(acc);
-  await fsp.writeFile(p, JSON.stringify(BT), 'utf8');
-  log(`  완료: ${BT.period.from}~${BT.period.to} · ${BT.stockDays.toLocaleString()} 종목-일`);
+  await fsp.writeFile(pBt, JSON.stringify(BT), 'utf8');
+  log(`  백테스트: ${BT.period.from}~${BT.period.to} · ${BT.stockDays.toLocaleString()} 종목-일`);
+
+  const DEC = {
+    generatedAt: new Date().toISOString(),
+    price: Q.decileFrom(pPanel, Q.PRICE_FACTORS, 120),
+    value: { result: Q.decileFrom(vPanel, Q.VALUE_FACTORS, 240), samples: vPanel.length },
+  };
+  await fsp.writeFile(pDc, JSON.stringify(DEC), 'utf8');
+  log(`  구간분석: 가격 ${pPanel.length.toLocaleString()}건 / 밸류 ${vPanel.length.toLocaleString()}건`);
 }
 
 /* ------------------------------------------------------------------ *
@@ -98,7 +119,6 @@ log('리포트 생성...');
 const R = await RP.run({ log });
 const dash = `${R.baseDate.slice(0, 4)}-${R.baseDate.slice(4, 6)}-${R.baseDate.slice(6, 8)}`;
 
-// 어제 픽 추적 (Actions 로그에 남김)
 try {
   const prev = await RP.followUp(R, ROOT);
   if (prev) {
@@ -124,7 +144,6 @@ await fsp.writeFile(nodePath.join(DOCS, `${dash}.html`), injectNav(raw, dates, d
 await fsp.writeFile(nodePath.join(DOCS, 'index.html'), injectNav(raw, dates, dash), 'utf8');
 await fsp.writeFile(nodePath.join(DOCS, '.nojekyll'), '', 'utf8');
 
-// 지난 리포트 네비도 최신 목록으로 갱신
 for (const d of dates) {
   if (d === dash) continue;
   const f = nodePath.join(DOCS, `${d}.html`);
@@ -134,5 +153,6 @@ for (const d of dates) {
 await fsp.writeFile(nodePath.join(DOCS, 'archive.json'),
   JSON.stringify({ updated: new Date().toISOString(), latest: dash, dates }, null, 2), 'utf8');
 
-log(`\n완료: ${dash} · 분석 ${R.analyzed}종목 · 아카이브 ${dates.length}호`);
+log(`\n완료: ${dash} · 시그널 ${R.analyzed}종목 / 밸류풀 ${R.valueAnalyzed}종목 · 아카이브 ${dates.length}호`);
 log(`후보 — 단타 ${R.bucket.short.length} / 스윙 ${R.bucket.swing.length} / 장투 ${R.bucket.long.length}`);
+if (R.pfo) log(`퀀트 포트폴리오 — 풀 ${R.pfo.pool} / 소형주 ${R.pfo.small} / ${R.halloween.label}`);

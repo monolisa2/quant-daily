@@ -36,25 +36,24 @@
    * ---------------------------------------------------------------- */
   async function run(opts = {}) {
     const {
-      minCapEok = 1000, minAvgValEok = 5, universeLimit = 1600,
+      minCapEok = 1000, minAvgValEok = 5, valueCapEok = 300, universeLimit = 2400,
       topN = 10, log = () => {},
     } = opts;
     const P = _path();
 
-    log('1/5 전종목 스냅샷...');
+    log('1/6 전종목 스냅샷...');
     const uni = await Q.fetchUniverse();
     const myCodes = (await loadJSON(P.join(ARCHIVE, 'watchlist.json'), { codes: [] })).codes || [];
-    const pool = uni.filter((s) => s.capEok >= minCapEok && s.price > 0).sort((a, b) => b.capEok - a.capEok).slice(0, universeLimit);
+    const pool = uni.filter((s) => s.capEok >= valueCapEok && s.price > 0).sort((a, b) => b.capEok - a.capEok).slice(0, universeLimit);
     const poolCodes = new Set(pool.map((s) => s.code));
     for (const c of myCodes) if (!poolCodes.has(c)) { const f = uni.find((s) => s.code === c); if (f) pool.push(f); }
     log(`   전체 ${uni.length} / 분석대상 ${pool.length}`);
 
-    log('2/5 일봉 수집...');
+    log('2/6 일봉 수집...');
     const bulk = await Q.fetchBarsBulk(pool.map((s) => s.code), { days: 420, onProgress: (d, t) => log(`   ${d}/${t}`) });
 
-    log('3/5 지표 계산...');
-    const rows = [];
-    const seriesMap = new Map();
+    log('3/6 지표 계산...');
+    const allRows = [];
     for (const s of pool) {
       const C = bulk.get(s.code);
       if (!C || C.c.length < 130) continue;
@@ -64,16 +63,16 @@
       if (!r) continue;
       r.capEok = s.capEok; r.price = s.price;
       r.isMine = myCodes.includes(s.code);
-      if (r.avgVal20 < minAvgValEok * 1e8 && !r.isMine) continue;
-      seriesMap.set(s.code, S);
-      rows.push(r);
+      allRows.push(r);
     }
+    // 시그널 전략용 풀 (백테스트와 동일 기준)
+    const rows = allRows.filter((r) => (r.capEok >= minCapEok && r.avgVal20 >= minAvgValEok * 1e8) || r.isMine);
     const dateCount = {};
     rows.forEach((r) => { dateCount[r.date] = (dateCount[r.date] || 0) + 1; });
     const baseDate = Object.entries(dateCount).sort((a, b) => b[1] - a[1])[0]?.[0];
     log(`   유효 ${rows.length}종목 / 기준일 ${baseDate}`);
 
-    log('4/5 전략 스크리닝...');
+    log('4/6 전략 스크리닝...');
     const BT = await loadJSON(P.join(ARCHIVE, 'backtest.json'));
     const strat = {};
     for (const S of STRATEGIES) {
@@ -87,6 +86,16 @@
       if (!hitsOf.has(c)) hitsOf.set(c, []);
       hitsOf.get(c).push(S.id);
     }
+
+    log('5/6 재무 데이터 + 책 기반 포트폴리오...');
+    let pfo = null, DEC = null;
+    try {
+      const fundMap = await Q.fetchFundamentalsBulk(pool, { concurrency: 30, onProgress: (d, t) => log(`   재무 ${d}/${t}`) });
+      allRows.forEach((r) => { r.f = fundMap.get(r.code) || null; });
+      pfo = Q.buildPortfolios(allRows, {});
+      DEC = await loadJSON(P.join(ARCHIVE, 'deciles.json'));
+      log(`   포트폴리오 풀 ${pfo.pool} / 소형주 ${pfo.small}`);
+    } catch (e) { log('   재무 수집 실패: ' + e.message); }
 
     const market = await Q.fetchMarket();
     const liquid = rows.filter((r) => r.tradeVal >= 10e8);
@@ -120,7 +129,7 @@
       past: BT?.perStock?.[r.code] || null,
     }));
 
-    log('5/5 뉴스...');
+    log('6/6 뉴스...');
     const newsCodes = [...new Set([
       ...gainers.slice(0, 6).map((r) => r.code),
       ...HK.flatMap((hk) => bucket[hk].slice(0, 3).map((b) => b.row.code)),
@@ -131,8 +140,9 @@
 
     return {
       baseDate, generatedAt: new Date().toISOString(),
-      universeCount: uni.length, analyzed: rows.length,
-      market, gainers, losers, byValue, strat, bucket, mine, hitsOf, newsMap, rows, BT,
+      universeCount: uni.length, analyzed: rows.length, valueAnalyzed: allRows.length,
+      market, gainers, losers, byValue, strat, bucket, mine, hitsOf, newsMap, rows, allRows, BT,
+      pfo, DEC, halloween: Q.halloween(),
     };
   }
 
@@ -271,6 +281,83 @@
     const bench = BT?.benchmark;
     const benchLine = bench ? `조건을 통과한 종목을 <b>아무거나</b> 샀을 때: 단타 ${pctS(bench.short.avg, 2)} (승률 ${pctP(bench.short.win, 0)}) · 스윙 ${pctS(bench.swing.avg, 2)} (${pctP(bench.swing.win, 0)}) · 장투 ${pctS(bench.long.avg, 2)} (${pctP(bench.long.win, 0)}). <b>'시장대비'</b>는 이 값을 뺀 순수 실력이다.` : '';
 
+    /* --- 책 기반 포트폴리오 --- */
+    const fmtPart = (k, v) => {
+      if (v == null) return '-';
+      if (typeof v !== 'number') return esc(v);
+      if (/괴리율|ROE|OP\/A|수익률|변동성/.test(k)) return pctS(v * (Math.abs(v) < 5 ? 1 : 0.01));
+      if (/적정주가/.test(k)) return Math.round(v).toLocaleString() + '원';
+      if (/부채비율/.test(k)) return v.toFixed(0) + '%';
+      return v.toFixed(2);
+    };
+    const pfCard = (P) => {
+      const p = R.pfo?.portfolios?.[P.id];
+      if (!p) return '';
+      const partKeys = p.list.length ? Object.keys(p.list[0].parts) : [];
+      return `<section class="card">
+        <h3>${esc(P.name)}<span class="cnt">상위 ${p.list.length}종목</span></h3>
+        <p class="origin">${esc(P.author)} · ${esc(P.formula)} · 리밸런싱 ${esc(P.rebalance)} · 후보군 ${p.total}종목${P.small ? ` (소형주 ${p.poolSize}종목 중)` : ''}</p>
+        <p class="why">${esc(P.why)}</p>
+        <p class="caution">주의 · ${esc(P.caution)}</p>
+        <div class="tw"><table>
+          <thead><tr><th>#</th><th>종목</th><th class="n">종가</th><th class="n">1일</th><th class="n">시총</th>${partKeys.map((k) => `<th class="n">${esc(k)}</th>`).join('')}${P.id === 'absmom_lv' ? '<th class="n">제안비중</th>' : ''}</tr></thead>
+          <tbody>${p.list.map((x, i) => `<tr>
+            <td class="mut">${i + 1}</td>
+            <td class="nm"><a href="${nlink(x.row.code)}" target="_blank">${esc(x.row.name)}</a><span class="cd">${x.row.code} · ${x.row.market === 'KOSPI' ? '코스피' : '코스닥'}</span></td>
+            <td class="n">${x.row.close.toLocaleString()}</td>
+            <td class="n ${cls(x.row.ret1)}">${pctS(x.row.ret1)}</td>
+            <td class="n">${capS(x.row.capEok)}</td>
+            ${partKeys.map((k) => `<td class="n">${fmtPart(k, x.parts[k])}</td>`).join('')}
+            ${P.id === 'absmom_lv' ? `<td class="n">${pctP(x.weight, 1)}</td>` : ''}
+          </tr>`).join('')}</tbody></table></div>
+      </section>`;
+    };
+
+    /* --- 팩터 구간 분석 (문병로 방식) --- */
+    const decTable = (block, unitNote) => {
+      if (!block) return '';
+      const ds = block.deciles;
+      const max = Math.max(...ds.map((d) => Math.abs(d.avgRet || 0)));
+      return `<section class="card">
+        <h3>${esc(block.meta.name)}<span class="cnt">${block.fwd}거래일 후</span></h3>
+        <p class="origin">${esc(block.meta.note)}${unitNote ? ' · ' + esc(unitNote) : ''}</p>
+        <div class="tw"><table class="rank">
+          <thead><tr><th>분위</th><th class="n">구간 평균값</th><th class="n">이후 수익률</th><th>막대</th><th class="n">승률</th><th class="n">표본</th></tr></thead>
+          <tbody>${ds.map((d) => `<tr>
+            <td><b>${d.d}</b>분위</td>
+            <td class="n mut">${d.avgVal == null ? '-' : (Math.abs(d.avgVal) > 1000 ? Math.round(d.avgVal).toLocaleString() : d.avgVal.toFixed(2))}</td>
+            <td class="n ${cls(d.avgRet)}"><b>${pctS(d.avgRet)}</b></td>
+            <td><span class="bar" style="width:${max ? Math.round(Math.abs(d.avgRet || 0) / max * 100) : 0}%"></span></td>
+            <td class="n">${pctP(d.win, 0)}</td>
+            <td class="n mut">${d.n.toLocaleString()}</td></tr>`).join('')}</tbody></table></div>
+      </section>`;
+    };
+
+    const pfTab = () => {
+      if (!R.pfo) return '<div class="tab" id="tab-book"><p class="none">재무 데이터 수집에 실패해 이번 회차는 비었습니다.</p></div>';
+      const hw = R.pfo.halloween;
+      const pd = R.DEC?.price, vd = R.DEC?.value;
+      return `<div class="tab" id="tab-book">
+        <div class="lead"><h2>퀀트 포트폴리오 <small>국내 퀀트 저자들의 공식을 오늘 데이터로 돌린 결과</small></h2></div>
+        <section class="card note">
+          <p><b>이 탭은 앞의 3개 탭과 성격이 다릅니다.</b> 단타·스윙·장투 탭은 "오늘 이런 신호가 뗄다"는 시그널이고,
+          여기는 <b>순위 상위 20~30종목을 한꺼번에 사서 분산 보유하고 정해진 주기마다 교체</b>하는 방식입니다.
+          종목 하나하나가 아니라 <b>묶음 전체의 평균</b>으로 수익을 내는 구조라, 몇 종목만 골라 사면 전략이 성립하지 않습니다.</p>
+          <p class="hw ${hw.on ? 'on' : 'off'}"><b>${esc(hw.label)}</b> · ${esc(hw.note)}</p>
+          <p class="mutp">투자가능 풀 ${R.pfo.pool.toLocaleString()}종목 (시총 300억 이상 · 20일 평균 거래대금 3억 이상 · 부채비율 400% 이하 · 지주사·리츠·우선주·스팩 제외) ·
+          소형주 = 시총 하위 20% (${capS(R.pfo.smallCut)} 이하) ${R.pfo.small.toLocaleString()}종목</p>
+        </section>
+        ${Q.PORTFOLIOS.map(pfCard).join('')}
+        <div class="lead"><h2>팩터 구간 분석 <small>문병로 『메트릭 스튜디오』 방식</small></h2></div>
+        <section class="card note">
+          <p>"PBR이 낮을수록 좋다"는 말을 그대로 믿지 말고, <b>지표를 10등분해서 구간별로 실제 수익률을 직접 확인</b>한 것입니다.
+          매년 같은 방향으로 움직이지 않고(비선형), 어느 구간에서만 효과가 나는 경우가 많습니다.</p>
+        </section>
+        ${pd ? Object.values(pd).map((b) => decTable(b)).join('') : '<p class="none">가격 팩터 분석 데이터 없음 (백테스트 갱신 필요)</p>'}
+        ${vd ? Object.values(vd.result || {}).map((b) => decTable(b, `표본 ${(vd.samples || 0).toLocaleString()}건 · 연간보고서 공시 4개월 후 기준으로 재구성`)).join('') : ''}
+      </div>`;
+    };
+
     const section = (hk) => {
       const H = HORIZONS[hk];
       const ss = STRATEGIES.filter((S) => S.horizon === hk);
@@ -363,9 +450,16 @@ table.mini{font-size:12px;margin-top:8px}
 .tabs label small{display:block;font-weight:400;font-size:11px;color:var(--mut)}
 input[name=tb]{display:none}
 .tab{display:none}
-#t-short:checked~.body #tab-short,#t-swing:checked~.body #tab-swing,#t-long:checked~.body #tab-long{display:block}
-#t-short:checked~.tabs label[for=t-short],#t-swing:checked~.tabs label[for=t-swing],#t-long:checked~.tabs label[for=t-long]{background:var(--acc);color:#fff;border-color:var(--acc)}
-#t-short:checked~.tabs label[for=t-short] small,#t-swing:checked~.tabs label[for=t-swing] small,#t-long:checked~.tabs label[for=t-long] small{color:#c9ced8}
+#t-short:checked~.body #tab-short,#t-swing:checked~.body #tab-swing,#t-long:checked~.body #tab-long,#t-book:checked~.body #tab-book{display:block}
+#t-short:checked~.tabs label[for=t-short],#t-swing:checked~.tabs label[for=t-swing],#t-long:checked~.tabs label[for=t-long],#t-book:checked~.tabs label[for=t-book]{background:var(--acc);color:#fff;border-color:var(--acc)}
+#t-short:checked~.tabs label[for=t-short] small,#t-swing:checked~.tabs label[for=t-swing] small,#t-long:checked~.tabs label[for=t-long] small,#t-book:checked~.tabs label[for=t-book] small{color:#c9ced8}
+.card.note p{margin:0 0 8px;font-size:13px;line-height:1.7}
+.card.note{background:#fbfcfe}
+.hw{border-radius:8px;padding:9px 11px;font-size:12.5px}
+.hw.on{background:#e7f6ec;color:#12662f}.hw.off{background:#fdf0ec;color:#a0400f}
+.mutp{color:var(--mut);font-size:11.5px}
+.bar{display:inline-block;height:9px;background:#2b6cf6;border-radius:3px;min-width:2px;vertical-align:middle}
+.lead h2{margin-top:26px}
 footer{margin-top:36px;font-size:11.5px;color:var(--mut);line-height:1.8;border-top:1px solid var(--line);padding-top:14px}
 </style></head><body><div class="wrap">
 <header>
@@ -377,13 +471,14 @@ footer{margin-top:36px;font-size:11.5px;color:var(--mut);line-height:1.8;border-
 <div class="mgrid">${mk}</div>
 ${mineBlock}
 
-<input type="radio" name="tb" id="t-short"><input type="radio" name="tb" id="t-swing" checked><input type="radio" name="tb" id="t-long">
+<input type="radio" name="tb" id="t-short"><input type="radio" name="tb" id="t-swing" checked><input type="radio" name="tb" id="t-long"><input type="radio" name="tb" id="t-book">
 <div class="tabs">
   <label for="t-short">단타<small>1~3거래일</small></label>
   <label for="t-swing">스윙<small>약 1개월</small></label>
   <label for="t-long">장투<small>약 6개월</small></label>
+  <label for="t-book">퀀트 포트폴리오<small>책 기반 · 분기 리밸런싱</small></label>
 </div>
-<div class="body">${HK.map(section).join('')}</div>
+<div class="body">${HK.map(section).join('')}${pfTab()}</div>
 
 <footer>
 <b>읽는 법</b> · <b>승률</b>은 보유기간 후 플러스로 끝난 비율, <b>시장대비</b>는 같은 필터를 통과한 종목을 무작위로 샀을 때보다 얼마나 더 벌었는지(이게 진짜 실력), <b>목표달성률</b>은 단타 +3% / 스윙 +8% / 장투 +20%를 넘긴 비율, <b>MFE/MAE</b>는 보유 중 최대로 올랐던 폭 / 빠졌던 폭의 중앙값이다.<br>
