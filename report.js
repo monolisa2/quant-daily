@@ -55,18 +55,34 @@
     const bulk = await Q.fetchBarsBulk(pool.map((s) => s.code), { days: 420, onProgress: (d, t) => log(`   ${d}/${t}`) });
 
     log('3/6 지표 계산...');
+    // —— 미완성 당일봉 가드 ——
+    // 장중(09:00~15:30)에 돌면 네이버가 당일 봉을 실시간 값으로 내려준다.
+    // 그걸 "장 마감 기준"으로 쓰면 오후에 뒤집히는 숫자가 나온다.
+    // KST 16:00 전이면 당일 봉을 버리고 직전 거래일로 돌린다.
+    const nowK = new Date(Date.now() + 9 * 3600 * 1000);
+    const todayK = nowK.toISOString().slice(0, 10).replace(/-/g, '');
+    const closeFixed = nowK.getUTCHours() >= 16;      // KST 16시 이후 = 당일 종가 확정
+    let skipped = 0;
+
     const allRows = [];
     for (const s of pool) {
       const C = bulk.get(s.code);
       if (!C || C.c.length < 130) continue;
       const S = buildSeries(s, C);
       if (!S) continue;
-      const r = S.at(S.lastIdx);
+      let idx = S.lastIdx;
+      const intraday = !closeFixed && C.d[idx] === todayK;
+      if (intraday) { idx -= 1; skipped++; }
+      const r = S.at(idx);
       if (!r) continue;
-      r.capEok = s.capEok; r.price = s.price;
+      // 시가총액·현재가는 스냅샷(실시간) 값이므로 기준일 종가에 맞춤
+      r.capEok = intraday && s.price > 0 ? s.capEok * (r.close / s.price) : s.capEok;
+      r.price = r.close;
+      r.intraday = intraday;
       r.isMine = myCodes.includes(s.code);
       allRows.push(r);
     }
+    if (skipped) log(`   장중 실행 감지 → 당일 미확정 봉 제외 (${skipped}종목)`);
     // 시그널 전략용 풀 (백테스트와 동일 기준)
     const rows = allRows.filter((r) => (r.capEok >= minCapEok && r.avgVal20 >= minAvgValEok * 1e8) || r.isMine);
     const dateCount = {};
@@ -143,6 +159,7 @@
     return {
       baseDate, generatedAt: new Date().toISOString(),
       universeCount: uni.length, analyzed: rows.length, valueAnalyzed: allRows.length,
+      intradayGuard: skipped > 0, generatedKST: nowK.toISOString().slice(0, 16).replace('T', ' '),
       market, gainers, losers, byValue, strat, bucket, mine, hitsOf, newsMap, rows, allRows, BT,
       pfo, DEC, halloween: Q.halloween(),
     };
@@ -515,7 +532,7 @@ footer{margin-top:36px;font-size:11.5px;color:var(--mut);line-height:1.8;border-
 </style></head><body><div class="wrap">
 <header>
   <h1>퀀트 브리핑</h1>
-  <p>${fmtD(R.baseDate)} 장 마감 기준 · 분석 ${R.analyzed.toLocaleString()}종목 / 상장 ${R.universeCount.toLocaleString()}종목 · 백테스트 ${BT ? `${fmtD(BT.period.from)}~${fmtD(BT.period.to)} · ${BT.stockDays.toLocaleString()} 종목-일` : '없음'} · 생성 ${new Date(R.generatedAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}</p>
+  <p>${fmtD(R.baseDate)} <b>장 마감 확정치</b> 기준 · 분석 ${R.analyzed.toLocaleString()}종목 / 상장 ${R.universeCount.toLocaleString()}종목 · 백테스트 ${BT ? `${fmtD(BT.period.from)}~${fmtD(BT.period.to)} · ${BT.stockDays.toLocaleString()} 종목-일` : '없음'} · 생성 ${new Date(R.generatedAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}</p>
 </header>
 
 <h2>시장 온도계</h2>
