@@ -896,6 +896,24 @@
     return out.filter(Boolean);
   }
 
+  /** 특정 거래일 기준 지수 (과거 리포트 재생성용). 국내 지수만 리터널 일봉이 있다. */
+  async function fetchMarketAsOf(date, days = 90) {
+    const out = [];
+    for (const [sym, label] of [['KOSPI', '코스피'], ['KOSDAQ', '코스닥']]) {
+      try {
+        const C = await fetchBars(sym, days);
+        const i = C.d.lastIndexOf(date);
+        if (i < 1) continue;
+        out.push({
+          label, code: sym,
+          price: C.c[i].toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+          rate: Math.round((C.c[i] / C.c[i - 1] - 1) * 10000) / 100,
+        });
+      } catch {}
+    }
+    return out;
+  }
+
   async function fetchNews(code, size = 2) {
     const d = await getJSON(`${API}/news/stock/${code}?pageSize=${size}&page=1`, M + '/');
     const items = Array.isArray(d) ? d : d?.items || [];
@@ -923,6 +941,6 @@
     STRATEGIES, STRAT_BY_ID, HORIZONS, HK,
     statsOf, backtest, createAcc, feedAcc, finalizeAcc, fwdExtremes,
     PRICE_FACTORS, VALUE_FACTORS, pricePanel, valuePanel, priceDeciles, valueDeciles, decileFrom,
-    fetchMarket, fetchNews,
+    fetchMarket, fetchMarketAsOf, fetchNews,
   };
 })()

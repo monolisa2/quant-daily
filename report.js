@@ -40,11 +40,16 @@
     const {
       minCapEok = 1000, minAvgValEok = 5, valueCapEok = 300, universeLimit = 2400,
       topN = 10, log = () => {},
+      asOf = null,          // 'YYYYMMDD' — 과거 거래일로 재생성
+      bulk: bulkIn = null,  // 재생성 시 일봉을 재사용해 중복 수집을 피한다
+      uni: uniIn = null,
+      barsDays = null,
     } = opts;
+    const rebuilt = !!asOf;
     const P = _path();
 
     log('1/6 전종목 스냅샷...');
-    const uni = await Q.fetchUniverse();
+    const uni = uniIn || await Q.fetchUniverse();
     const myCodes = (await loadJSON(P.join(ARCHIVE, 'watchlist.json'), { codes: [] })).codes || [];
     const pool = uni.filter((s) => s.capEok >= valueCapEok && s.price > 0).sort((a, b) => b.capEok - a.capEok).slice(0, universeLimit);
     const poolCodes = new Set(pool.map((s) => s.code));
@@ -52,7 +57,8 @@
     log(`   전체 ${uni.length} / 분석대상 ${pool.length}`);
 
     log('2/6 일봉 수집...');
-    const bulk = await Q.fetchBarsBulk(pool.map((s) => s.code), { days: 420, onProgress: (d, t) => log(`   ${d}/${t}`) });
+    const bulk = bulkIn || await Q.fetchBarsBulk(pool.map((s) => s.code),
+      { days: barsDays || (rebuilt ? 1300 : 420), onProgress: (d, t) => log(`   ${d}/${t}`) });
 
     log('3/6 지표 계산...');
     // —— 미완성 당일봉 가드 ——
@@ -70,14 +76,22 @@
       if (!C || C.c.length < 130) continue;
       const S = buildSeries(s, C);
       if (!S) continue;
-      let idx = S.lastIdx;
-      const intraday = !closeFixed && C.d[idx] === todayK;
-      if (intraday) { idx -= 1; skipped++; }
+      let idx, intraday = false;
+      if (rebuilt) {
+        idx = C.d.lastIndexOf(asOf);
+        if (idx < 130) continue;                 // 그날 거래 없음 / 이력 부족
+      } else {
+        idx = S.lastIdx;
+        intraday = !closeFixed && C.d[idx] === todayK;
+        if (intraday) { idx -= 1; skipped++; }
+      }
       const r = S.at(idx);
       if (!r) continue;
+      if (rebuilt && s.price > 0) r.capEok = s.capEok * (r.close / C.c[S.lastIdx]);
       // 시가총액·현재가는 스냅샷(실시간) 값이므로 기준일 종가에 맞춤
-      r.capEok = intraday && s.price > 0 ? s.capEok * (r.close / s.price) : s.capEok;
+      else r.capEok = intraday && s.price > 0 ? s.capEok * (r.close / s.price) : s.capEok;
       r.price = r.close;
+      r.prevDate = C.d[idx - 1];
       r.intraday = intraday;
       r.isMine = myCodes.includes(s.code);
       allRows.push(r);
@@ -107,7 +121,8 @@
 
     log('5/6 재무 데이터 + 책 기반 포트폴리오...');
     let pfo = null, DEC = null;
-    try {
+    if (rebuilt) log('   과거 재생성이라 재무 기반 전략은 생략 (시점 복원 불가)');
+    else try {
       const fundMap = await Q.fetchFundamentalsBulk(pool, { concurrency: 30, onProgress: (d, t) => log(`   재무 ${d}/${t}`) });
       allRows.forEach((r) => { r.f = fundMap.get(r.code) || null; });
       pfo = Q.buildPortfolios(allRows, {});
@@ -115,7 +130,7 @@
       log(`   포트폴리오 풀 ${pfo.pool} / 소형주 ${pfo.small}`);
     } catch (e) { log('   재무 수집 실패: ' + e.message); }
 
-    const market = await Q.fetchMarket();
+    const market = rebuilt ? await Q.fetchMarketAsOf(asOf) : await Q.fetchMarket();
     const liquid = rows.filter((r) => r.tradeVal >= 10e8);
     const gainers = [...liquid].sort((a, b) => b.ret1 - a.ret1).slice(0, topN);
     const losers = [...liquid].sort((a, b) => a.ret1 - b.ret1).slice(0, topN);
@@ -148,7 +163,7 @@
     }));
 
     log('6/6 뉴스...');
-    const newsCodes = [...new Set([
+    const newsCodes = rebuilt ? [] : [...new Set([
       ...gainers.slice(0, 6).map((r) => r.code),
       ...HK.flatMap((hk) => bucket[hk].slice(0, 3).map((b) => b.row.code)),
       ...mine.map((m) => m.row.code),
@@ -160,6 +175,7 @@
       baseDate, generatedAt: new Date().toISOString(),
       universeCount: uni.length, analyzed: rows.length, valueAnalyzed: allRows.length,
       intradayGuard: skipped > 0, generatedKST: nowK.toISOString().slice(0, 16).replace('T', ' '),
+      rebuilt, prevDate: rows.map((r) => r.prevDate).filter(Boolean).sort().pop(),
       market, gainers, losers, byValue, strat, bucket, mine, hitsOf, newsMap, rows, allRows, BT,
       pfo, DEC, halloween: Q.halloween(),
     };
@@ -353,7 +369,9 @@
     };
 
     const pfTab = () => {
-      if (!R.pfo) return '<div class="tab" id="tab-book"><p class="none">재무 데이터 수집에 실패해 이번 회차는 비었습니다.</p></div>';
+      if (!R.pfo) return `<div class="tab" id="tab-book"><section class="card"><p class="none">${R.rebuilt
+        ? '과거 회차 정정본입니다. 책 기반 포트폴리오는 당시 재무제표를 복원할 수 없어 비워두었습니다. 최신 회차에서 확인하세요.'
+        : '재무 데이터 수집에 실패해 이번 회차는 비었습니다.'}</p></section></div>`;
       const hw = R.pfo.halloween;
       const pd = R.DEC?.price, vd = R.DEC?.value;
       return `<div class="tab" id="tab-book">
@@ -475,6 +493,11 @@ input[name=tb]{display:none}
 #t-short:checked~.body #tab-short,#t-swing:checked~.body #tab-swing,#t-long:checked~.body #tab-long,#t-book:checked~.body #tab-book{display:block}
 #t-short:checked~.tabs label[for=t-short],#t-swing:checked~.tabs label[for=t-swing],#t-long:checked~.tabs label[for=t-long],#t-book:checked~.tabs label[for=t-book]{background:var(--acc);color:#fff;border-color:var(--acc)}
 #t-short:checked~.tabs label[for=t-short] small,#t-swing:checked~.tabs label[for=t-swing] small,#t-long:checked~.tabs label[for=t-long] small,#t-book:checked~.tabs label[for=t-book] small{color:#c9ced8}
+.card.basis{background:#f7f9ff;border-color:#d8e2fb}
+.card.basis h3{font-size:14.5px;margin-bottom:7px}
+.card.basis ul{margin:0 0 8px;padding-left:17px;font-size:12.5px;line-height:1.8;color:#2c3340}
+.card.basis li{margin-bottom:1px}
+.card.basis .redo{margin:0 0 10px;font-size:12.5px;background:#fff4e2;color:#8c5200;border-radius:8px;padding:8px 11px;line-height:1.65}
 .card.note p{margin:0 0 8px;font-size:13px;line-height:1.7}
 .card.note{background:#fbfcfe}
 .hw{border-radius:8px;padding:9px 11px;font-size:12.5px}
@@ -534,6 +557,19 @@ footer{margin-top:36px;font-size:11.5px;color:var(--mut);line-height:1.8;border-
   <h1>퀀트 브리핑</h1>
   <p>${fmtD(R.baseDate)} <b>장 마감 확정치</b> 기준 · 분석 ${R.analyzed.toLocaleString()}종목 / 상장 ${R.universeCount.toLocaleString()}종목 · 백테스트 ${BT ? `${fmtD(BT.period.from)}~${fmtD(BT.period.to)} · ${BT.stockDays.toLocaleString()} 종목-일` : '없음'} · 생성 ${new Date(R.generatedAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}</p>
 </header>
+
+<section class="card basis">
+  <h3>이 리포트는 언제 가격인가요?</h3>
+  <ul>
+    <li><b>${fmtD(R.baseDate)} 장 마감(15:30) 확정 종가</b> 기준입니다. 그 이후의 장중 가격은 들어있지 않습니다.</li>
+    <li>상단 날짜 선택창의 <b>${fmtD(R.baseDate)}</b> 는 ‘${fmtD(R.baseDate)} 종가’를 뜻합니다. 그 전날 종가가 아닙니다.</li>
+    ${R.prevDate ? `<li>표의 <b>1일</b>은 ${fmtD(R.prevDate)} 종가 → ${fmtD(R.baseDate)} 종가 변동입니다. <b>20일·60일·240일</b>은 각각 20·60·240 거래일 전 종가 대비입니다.</li>` : ''}
+    <li>보통 그날 밤~다음날 새벽에 만들어집니다. 즉 <b>아침에 열면 전 거래일 종가</b>가 보입니다. 월요일 아침은 금요일 종가입니다.</li>
+    <li>지금 시세는 종목명을 누르면 네이버 증권으로 연결됩니다.</li>
+  </ul>
+  ${R.rebuilt ? `<p class="redo">⚠ 이 회차는 초기 버그(장중 가격이 종가로 표기됨)를 바로잡기 위해 <b>확정 종가로 다시 계산한 정정본</b>입니다.
+    당시의 해외지수·환율·뉴스와 책 기반 퀀트 포트폴리오는 과거 시점으로 복원할 수 없어 빠졌습니다. 주가·지표·전략 후보는 모두 정확합니다.</p>` : ''}
+</section>
 
 <h2>시장 온도계</h2>
 <div class="mgrid">${mk}</div>
