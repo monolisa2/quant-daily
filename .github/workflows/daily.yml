@@ -2,7 +2,11 @@ name: Daily Quant Brief
 
 on:
   schedule:
-    - cron: '20 21 * * 0-4'
+    # GitHub 크론은 부하에 따라 3~6시간까지 지연된다.
+    # 아침 7시 전에 끝나도록 시도 시각을 앞당기고 3번 걸어둔다.
+    - cron: '37 13 * * 0-4'   # KST 22:37
+    - cron: '41 15 * * 0-4'   # KST 00:41
+    - cron: '43 17 * * 0-4'   # KST 02:43
   workflow_dispatch:
 
 permissions:
@@ -30,6 +34,7 @@ jobs:
         run: |
           git config user.name "quant-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase || true
           git add -A
           if git diff --staged --quiet; then
             echo "no changes"
