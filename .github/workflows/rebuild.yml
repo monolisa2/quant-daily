@@ -1,0 +1,42 @@
+name: Rebuild Archive
+
+on:
+  workflow_dispatch:
+    inputs:
+      dates:
+        description: '재생성할 날짜 (비우면 전체). 예: 2026-11-12 2026-11-11'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  group: quant-daily
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Rebuild archived reports
+        run: node rebuild.mjs ${{ github.event.inputs.dates }}
+
+      - name: Commit and push
+        run: |
+          git config user.name "quant-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase || true
+          git add -A
+          if git diff --staged --quiet; then
+            echo "no changes"
+          else
+            git commit -m "rebuild archive with confirmed closing prices"
+            git push
+          fi
