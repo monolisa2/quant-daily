@@ -63,7 +63,7 @@ async function ensureBacktest(force = false) {
   const t0 = Date.now();
   for (let i = 0; i < val.length; i += 220) {
     const part = val.slice(i, i + 220);
-    const bulk = await Q.fetchBarsBulk(part.map((s) => s.code), { days: 1300 });
+    const bulk = await Q.fetchBarsBulk(part, { days: 1300, concurrency: 60 });
     Q.feedAcc(acc, part.filter((s) => sigSet.has(s.code)), bulk);
     for (const p of Q.pricePanel(part, bulk)) pPanel.push(p);
     for (const p of Q.valuePanel(part, bulk, fundMap)) vPanel.push(p);

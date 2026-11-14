@@ -61,7 +61,7 @@
   const BAR_RE = /\["(\d{8})",\s*([\d.]+),\s*([\d.]+),\s*([\d.]+),\s*([\d.]+),\s*(\d+),\s*([\d.-]+)\]/g;
 
   /** 컬럼형 일봉: {d:[], o:[], h:[], l:[], c:[], v:[], f:[]} */
-  async function fetchBars(code, days = 400) {
+  async function fetchBarsNaver(code, days = 400) {
     const end = new Date();
     const start = new Date(end.getTime() - days * 86400000 * 1.5);
     const f = (d) => d.toISOString().slice(0, 10).replace(/-/g, '');
@@ -76,15 +76,71 @@
     return C;
   }
 
-  async function fetchBarsBulk(codes, { concurrency = 24, days = 400, onProgress } = {}) {
+  /** 야후 파이낸스 — KRX 정규장 기준 (구글·다음·증권사 HTS와 동일) */
+  async function fetchBarsYahoo(code, market, days = 400) {
+    // 시장을 모르면 KS -> KQ 순으로 시도
+    if (!market) {
+      const a = await fetchBarsYahoo(code, 'KOSPI', days);
+      if (a && a.d.length >= 20) return a;
+      return fetchBarsYahoo(code, 'KOSDAQ', days);
+    }
+    const sfx = market === 'KOSDAQ' ? 'KQ' : 'KS';
+    const end = Math.floor(Date.now() / 1000) + 86400;
+    const start = end - Math.round(days * 86400 * 1.5);
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${code}.${sfx}?period1=${start}&period2=${end}&interval=1d`;
+    const j = await getJSON(url, 'https://finance.yahoo.com/', 2);
+    const r = j?.chart?.result?.[0];
+    const q = r?.indicators?.quote?.[0];
+    if (!r?.timestamp || !q) return null;
+    const C = { d: [], o: [], h: [], l: [], c: [], v: [], f: [] };
+    for (let i = 0; i < r.timestamp.length; i++) {
+      if (q.close[i] == null) continue;
+      C.d.push(new Date(r.timestamp[i] * 1000).toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' }).replace(/-/g, ''));
+      C.o.push(Math.round(q.open[i] ?? q.close[i]));
+      C.h.push(Math.round(q.high[i] ?? q.close[i]));
+      C.l.push(Math.round(q.low[i] ?? q.close[i]));
+      C.c.push(Math.round(q.close[i]));
+      C.v.push(q.volume[i] ?? 0);
+      C.f.push(0);
+    }
+    return C;
+  }
+
+  /**
+   * 일봉 수집. 가격은 KRX 정규장(야후), 외국인소진율은 네이버에서 날짜로 붙인다.
+   * 야후가 실패하면 네이버로 폴백. 지수(KOSPI 등)는 네이버만 제공한다.
+   */
+  async function fetchBars(code, days = 400, market = null) {
+    if (!/^\d{6}$/.test(code)) return fetchBarsNaver(code, days);
+    const [Y, N] = await Promise.all([
+      fetchBarsYahoo(code, market, days).catch(() => null),
+      fetchBarsNaver(code, days).catch(() => null),
+    ]);
+    const nLen = N?.d?.length || 0;
+    if (!Y || Y.d.length < 20 || (nLen && Y.d.length < nLen * 0.6)) {
+      const F = (N && N.d.length) ? N : { d: [], o: [], h: [], l: [], c: [], v: [], f: [] };
+      F.src = 'naver'; return F;
+    }
+    if (N && N.d.length) {
+      const fm = new Map();
+      for (let i = 0; i < N.d.length; i++) fm.set(N.d[i], N.f[i]);
+      for (let i = 0; i < Y.d.length; i++) Y.f[i] = fm.get(Y.d[i]) ?? (i > 0 ? Y.f[i - 1] : 0);
+    }
+    Y.src = 'krx';
+    return Y;
+  }
+
+  /** items: 문자열 배열 또는 {code, market} 객체 배열 */
+  async function fetchBarsBulk(items, { concurrency = 24, days = 400, onProgress } = {}) {
     const res = new Map();
     let done = 0;
-    for (let i = 0; i < codes.length; i += concurrency) {
-      const chunk = codes.slice(i, i + concurrency);
-      const got = await Promise.all(chunk.map((c) => fetchBars(c, days).catch(() => ({ d: [] }))));
-      chunk.forEach((c, k) => res.set(c, got[k]));
+    const norm = items.map((x) => (typeof x === 'string' ? { code: x, market: null } : x));
+    for (let i = 0; i < norm.length; i += concurrency) {
+      const chunk = norm.slice(i, i + concurrency);
+      const got = await Promise.all(chunk.map((s) => fetchBars(s.code, days, s.market).catch(() => ({ d: [] }))));
+      chunk.forEach((s, k) => res.set(s.code, got[k]));
       done += chunk.length;
-      if (onProgress && done % (concurrency * 10) === 0) onProgress(done, codes.length);
+      if (onProgress && done % (concurrency * 10) === 0) onProgress(done, norm.length);
     }
     return res;
   }
@@ -934,7 +990,7 @@
 
   return {
     UA, getJSON, getText, sleep, num,
-    fetchUniverse, fetchBars, fetchBarsBulk,
+    fetchUniverse, fetchBars, fetchBarsBulk, fetchBarsNaver, fetchBarsYahoo,
     rollMean, rollMax, rollMin, rsiArr, volaArr, buildSeries,
     fetchFundamental, fetchFundamentalsBulk, pctRank,
     PORTFOLIOS, PF_BY_ID, buildPortfolios, investable, halloween,

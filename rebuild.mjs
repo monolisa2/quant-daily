@@ -64,8 +64,8 @@ log(`  ${pool.length}종목`);
 
 log('일봉 수집 (약 5년치, 1~2분)...');
 const t0 = Date.now();
-const bulk = await Q.fetchBarsBulk(pool.map((s) => s.code), {
-  days: 1300, concurrency: 24,
+const bulk = await Q.fetchBarsBulk(pool, {
+  days: 1300, concurrency: 60,
   onProgress: (d, t) => { if (d % 480 === 0) log(`  ${d}/${t} (${((Date.now() - t0) / 1000).toFixed(0)}s)`); },
 });
 log(`  완료 (${((Date.now() - t0) / 1000).toFixed(0)}s)`);

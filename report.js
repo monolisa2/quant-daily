@@ -57,8 +57,8 @@
     log(`   전체 ${uni.length} / 분석대상 ${pool.length}`);
 
     log('2/6 일봉 수집...');
-    const bulk = bulkIn || await Q.fetchBarsBulk(pool.map((s) => s.code),
-      { days: barsDays || (rebuilt ? 1300 : 420), onProgress: (d, t) => log(`   ${d}/${t}`) });
+    const bulk = bulkIn || await Q.fetchBarsBulk(pool,
+      { days: barsDays || (rebuilt ? 1300 : 420), concurrency: 60, onProgress: (d, t) => log(`   ${d}/${t}`) });
 
     log('3/6 지표 계산...');
     // —— 미완성 당일봉 가드 ——
@@ -89,7 +89,8 @@
       if (!r) continue;
       if (rebuilt && s.price > 0) r.capEok = s.capEok * (r.close / C.c[S.lastIdx]);
       // 시가총액·현재가는 스냅샷(실시간) 값이므로 기준일 종가에 맞춤
-      else r.capEok = intraday && s.price > 0 ? s.capEok * (r.close / s.price) : s.capEok;
+      // 스냅샷 시가총액은 네이버(시간외 포함) 가격 기준이라 KRX 종가로 환산한다
+      else r.capEok = s.price > 0 ? s.capEok * (r.close / s.price) : s.capEok;
       r.price = r.close;
       r.prevDate = C.d[idx - 1];
       r.intraday = intraday;
@@ -565,6 +566,7 @@ footer{margin-top:36px;font-size:11.5px;color:var(--mut);line-height:1.8;border-
     <li>상단 날짜 선택창의 <b>${fmtD(R.baseDate)}</b> 는 ‘${fmtD(R.baseDate)} 종가’를 뜻합니다. 그 전날 종가가 아닙니다.</li>
     ${R.prevDate ? `<li>표의 <b>1일</b>은 ${fmtD(R.prevDate)} 종가 → ${fmtD(R.baseDate)} 종가 변동입니다. <b>20일·60일·240일</b>은 각각 20·60·240 거래일 전 종가 대비입니다.</li>` : ''}
     <li>보통 그날 밤~다음날 새벽에 만들어집니다. 즉 <b>아침에 열면 전 거래일 종가</b>가 보입니다. 월요일 아침은 금요일 종가입니다.</li>
+    <li>가격은 <b>한국거래소(KRX) 정규장 종가</b>입니다. 구글·다음·증권사 HTS에 나오는 숫자와 같습니다. 시간외·대체거래소(NXT) 거래는 빠집니다.</li>
     <li>지금 시세는 종목명을 누르면 네이버 증권으로 연결됩니다.</li>
   </ul>
   ${R.rebuilt ? `<p class="redo">⚠ 이 회차는 초기 버그(장중 가격이 종가로 표기됨)를 바로잡기 위해 <b>확정 종가로 다시 계산한 정정본</b>입니다.
@@ -587,7 +589,7 @@ ${mineBlock}
 <footer>
 <b>읽는 법</b> · <b>승률</b>은 보유기간 후 플러스로 끝난 비율, <b>시장대비</b>는 같은 필터를 통과한 종목을 무작위로 샀을 때보다 얼마나 더 벌었는지(이게 진짜 실력), <b>목표달성률</b>은 단타 +3% / 스윙 +8% / 장투 +20%를 넘긴 비율, <b>MFE/MAE</b>는 보유 중 최대로 올랐던 폭 / 빠졌던 폭의 중앙값이다.<br>
 백테스트 조건 · 시가총액 1,000억원 이상, 20일 평균 거래대금 5억원 이상, 우선주·스팩·ETF/ETN 제외. 수수료·세금·슬리피지 미반영. 현재 상장된 종목만 대상이라 상장폐지 종목이 빠진 생존편향이 있다.<br>
-데이터 출처 네이버 금융. 본 리포트는 기계적으로 계산된 통계이며 투자 권유가 아닙니다. 모든 판단과 책임은 본인에게 있습니다.
+데이터 출처 · 주가는 한국거래소(KRX) 정규장 종가, 종목 목록·재무·지수·뉴스는 네이버 금융. 본 리포트는 기계적으로 계산된 통계이며 투자 권유가 아닙니다. 모든 판단과 책임은 본인에게 있습니다.
 </footer>
 </div></body></html>`;
   }
