@@ -189,6 +189,8 @@
     const BT = R.BT;
     const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     const cls = (v) => (v == null ? '' : v > 0 ? 'up' : v < 0 ? 'dn' : '');
+    // 마침표다 줄바꿈. 소수점(0.8 등)은 앞글자가 숫자라 안 걸린다.
+    const brk = (s) => esc(s).replace(/([^\d])\.\s+/g, '$1.<br>');
 
     const pastCell = (code, sid, hk) => {
       const ps = BT?.perStock?.[code]?.[sid];
@@ -245,8 +247,8 @@
         <h3>${esc(S.name)} ${verdict}<span class="cnt">오늘 ${s.total}종목</span></h3>
         <p class="origin">${esc(S.origin)}</p>
         <div class="badges">${btBadges(S.id, S.horizon)}</div>
-        <p class="why">${esc(S.why)}</p>
-        <p class="caution">주의 · ${esc(S.caution)}</p>
+        <p class="why">${brk(S.why)}</p>
+        <p class="caution">주의 · ${brk(S.caution)}</p>
         ${risk}
         ${body}
       </section>`;
@@ -315,7 +317,7 @@
       <span class="mr">${m.rate > 0 ? '+' : ''}${Number(m.rate).toFixed(2)}%</span></div>`).join('');
 
     const bench = BT?.benchmark;
-    const benchLine = bench ? `조건을 통과한 종목을 <b>아무거나</b> 샀을 때: 단타 ${pctS(bench.short.avg, 2)} (승률 ${pctP(bench.short.win, 0)}) · 스윙 ${pctS(bench.swing.avg, 2)} (${pctP(bench.swing.win, 0)}) · 장투 ${pctS(bench.long.avg, 2)} (${pctP(bench.long.win, 0)}). <b>'시장대비'</b>는 이 값을 뺀 순수 실력이다.` : '';
+    const benchLine = bench ? `조건을 통과한 종목을 <b>아무거나</b> 샀을 때: 단타 ${pctS(bench.short.avg, 2)} (승률 ${pctP(bench.short.win, 0)}) · 스윙 ${pctS(bench.swing.avg, 2)} (${pctP(bench.swing.win, 0)}) · 장투 ${pctS(bench.long.avg, 2)} (${pctP(bench.long.win, 0)}).<br><b>'시장대비'</b>는 이 값을 뺀 순수 실력이다.` : '';
 
     /* --- 책 기반 포트폴리오 --- */
     const fmtPart = (k, v) => {
@@ -333,8 +335,8 @@
       return `<section class="card">
         <h3>${esc(P.name)}<span class="cnt">상위 ${p.list.length}종목</span></h3>
         <p class="origin">${esc(P.author)} · ${esc(P.formula)} · 리밸런싱 ${esc(P.rebalance)} · 후보군 ${p.total}종목${P.small ? ` (소형주 ${p.poolSize}종목 중)` : ''}</p>
-        <p class="why">${esc(P.why)}</p>
-        <p class="caution">주의 · ${esc(P.caution)}</p>
+        <p class="why">${brk(P.why)}</p>
+        <p class="caution">주의 · ${brk(P.caution)}</p>
         <div class="tw"><table>
           <thead><tr><th>#</th><th>종목</th><th class="n">종가</th><th class="n">1일</th><th class="n">시총</th>${partKeys.map((k) => `<th class="n">${esc(k)}</th>`).join('')}${P.id === 'absmom_lv' ? '<th class="n">제안비중</th>' : ''}</tr></thead>
           <tbody>${p.list.map((x, i) => `<tr>
@@ -378,17 +380,17 @@
       return `<div class="tab" id="tab-book">
         <div class="lead"><h2>퀀트 포트폴리오 <small>국내 퀀트 저자들의 공식을 오늘 데이터로 돌린 결과</small></h2></div>
         <section class="card note">
-          <p><b>이 탭은 앞의 3개 탭과 성격이 다릅니다.</b> 단타·스윙·장투 탭은 "오늘 이런 신호가 뗄다"는 시그널이고,
-          여기는 <b>순위 상위 20~30종목을 한꺼번에 사서 분산 보유하고 정해진 주기마다 교체</b>하는 방식입니다.
+          <p><b>이 탭은 앞의 3개 탭과 성격이 다릅니다.</b><br>단타·스윙·장투 탭은 "오늘 이런 신호가 뗄다"는 시그널이고,
+          여기는 <b>순위 상위 20~30종목을 한꺼번에 사서 분산 보유하고 정해진 주기마다 교체</b>하는 방식입니다.<br>
           종목 하나하나가 아니라 <b>묶음 전체의 평균</b>으로 수익을 내는 구조라, 몇 종목만 골라 사면 전략이 성립하지 않습니다.</p>
-          <p class="hw ${hw.on ? 'on' : 'off'}"><b>${esc(hw.label)}</b> · ${esc(hw.note)}</p>
+          <p class="hw ${hw.on ? 'on' : 'off'}"><b>${esc(hw.label)}</b> · ${brk(hw.note)}</p>
           <p class="mutp">투자가능 풀 ${R.pfo.pool.toLocaleString()}종목 (시총 300억 이상 · 20일 평균 거래대금 3억 이상 · 부채비율 400% 이하 · 지주사·리츠·우선주·스팩 제외) ·
           소형주 = 시총 하위 20% (${capS(R.pfo.smallCut)} 이하) ${R.pfo.small.toLocaleString()}종목</p>
         </section>
         ${Q.PORTFOLIOS.map(pfCard).join('')}
         <div class="lead"><h2>팩터 구간 분석 <small>문병로 『메트릭 스튜디오』 방식</small></h2></div>
         <section class="card note">
-          <p>"PBR이 낮을수록 좋다"는 말을 그대로 믿지 말고, <b>지표를 10등분해서 구간별로 실제 수익률을 직접 확인</b>한 것입니다.
+          <p>"PBR이 낮을수록 좋다"는 말을 그대로 믿지 말고, <b>지표를 10등분해서 구간별로 실제 수익률을 직접 확인</b>한 것입니다.<br>
           매년 같은 방향으로 움직이지 않고(비선형), 어느 구간에서만 효과가 나는 경우가 많습니다.</p>
         </section>
         ${pd ? Object.values(pd).map((b) => decTable(b)).join('') : '<p class="none">가격 팩터 분석 데이터 없음 (백테스트 갱신 필요)</p>'}
@@ -562,11 +564,11 @@ footer{margin-top:36px;font-size:11.5px;color:var(--mut);line-height:1.8;border-
 <section class="card basis">
   <h3>이 리포트는 언제 가격인가요?</h3>
   <ul>
-    <li><b>${fmtD(R.baseDate)} 장 마감(15:30) 확정 종가</b> 기준입니다. 그 이후의 장중 가격은 들어있지 않습니다.</li>
-    <li>상단 날짜 선택창의 <b>${fmtD(R.baseDate)}</b> 는 ‘${fmtD(R.baseDate)} 종가’를 뜻합니다. 그 전날 종가가 아닙니다.</li>
-    ${R.prevDate ? `<li>표의 <b>1일</b>은 ${fmtD(R.prevDate)} 종가 → ${fmtD(R.baseDate)} 종가 변동입니다. <b>20일·60일·240일</b>은 각각 20·60·240 거래일 전 종가 대비입니다.</li>` : ''}
-    <li>보통 그날 밤~다음날 새벽에 만들어집니다. 즉 <b>아침에 열면 전 거래일 종가</b>가 보입니다. 월요일 아침은 금요일 종가입니다.</li>
-    <li>가격은 <b>한국거래소(KRX) 정규장 종가</b>입니다. 구글·다음·증권사 HTS에 나오는 숫자와 같습니다. 시간외·대체거래소(NXT) 거래는 빠집니다.</li>
+    <li><b>${fmtD(R.baseDate)} 장 마감(15:30) 확정 종가</b> 기준입니다.<br>그 이후의 장중 가격은 들어있지 않습니다.</li>
+    <li>상단 날짜 선택창의 <b>${fmtD(R.baseDate)}</b> 는 ‘${fmtD(R.baseDate)} 종가’를 뜻합니다.<br>그 전날 종가가 아닙니다.</li>
+    ${R.prevDate ? `<li>표의 <b>1일</b>은 ${fmtD(R.prevDate)} 종가 → ${fmtD(R.baseDate)} 종가 변동입니다.<br><b>20일·60일·240일</b>은 각각 20·60·240 거래일 전 종가 대비입니다.</li>` : ''}
+    <li>보통 그날 밤~다음날 새벽에 만들어집니다.<br>즉 <b>아침에 열면 전 거래일 종가</b>가 보입니다.<br>월요일 아침은 금요일 종가입니다.</li>
+    <li>가격은 <b>한국거래소(KRX) 정규장 종가</b>입니다.<br>구글·다음·증권사 HTS에 나오는 숫자와 같습니다.<br>시간외·대체거래소(NXT) 거래는 빠집니다.</li>
     <li>지금 시세는 종목명을 누르면 네이버 증권으로 연결됩니다.</li>
   </ul>
   ${R.rebuilt ? `<p class="redo">⚠ 이 회차는 초기 버그(장중 가격이 종가로 표기됨)를 바로잡기 위해 <b>확정 종가로 다시 계산한 정정본</b>입니다.<br>
@@ -589,8 +591,8 @@ ${mineBlock}
 
 <footer>
 <b>읽는 법</b> · <b>승률</b>은 보유기간 후 플러스로 끝난 비율, <b>시장대비</b>는 같은 필터를 통과한 종목을 무작위로 샀을 때보다 얼마나 더 벌었는지(이게 진짜 실력), <b>목표달성률</b>은 단타 +3% / 스윙 +8% / 장투 +20%를 넘긴 비율, <b>MFE/MAE</b>는 보유 중 최대로 올랐던 폭 / 빠졌던 폭의 중앙값이다.<br>
-백테스트 조건 · 시가총액 1,000억원 이상, 20일 평균 거래대금 5억원 이상, 우선주·스팩·ETF/ETN 제외. 수수료·세금·슬리피지 미반영. 현재 상장된 종목만 대상이라 상장폐지 종목이 빠진 생존편향이 있다.<br>
-데이터 출처 · 주가는 한국거래소(KRX) 정규장 종가, 종목 목록·재무·지수·뉴스는 네이버 금융. 본 리포트는 기계적으로 계산된 통계이며 투자 권유가 아닙니다. 모든 판단과 책임은 본인에게 있습니다.
+백테스트 조건 · 시가총액 1,000억원 이상, 20일 평균 거래대금 5억원 이상, 우선주·스팩·ETF/ETN 제외.<br>수수료·세금·슬리피지 미반영.<br>현재 상장된 종목만 대상이라 상장폐지 종목이 빠진 생존편향이 있다.<br>
+데이터 출처 · 주가는 한국거래소(KRX) 정규장 종가, 종목 목록·재무·지수·뉴스는 네이버 금융. 본 리포트는 기계적으로 계산된 통계이며 투자 권유가 아닙니다.<br>모든 판단과 책임은 본인에게 있습니다.
 </footer>
 </div></body></html>`;
   }
