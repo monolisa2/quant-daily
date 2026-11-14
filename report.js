@@ -15,7 +15,7 @@
   const _fs = () => (typeof fs !== 'undefined' ? fs : globalThis.fs);
   const _path = () => (typeof path !== 'undefined' ? path : globalThis.path);
 
-  const pctS = (v, d = 1) => (v == null || !isFinite(v) ? '-' : (v > 0 ? '+' : '') + (v * 100).toFixed(d) + '%');
+  const pctS = (v, d = 2) => (v == null || !isFinite(v) ? '-' : (v > 0 ? '+' : '') + (v * 100).toFixed(d) + '%');
   const pctP = (v, d = 1) => (v == null || !isFinite(v) ? '-' : (v * 100).toFixed(d) + '%');
   const won = (v) => {
     if (!v) return '-';
@@ -312,7 +312,7 @@
 
     const mk = R.market.map((m) => `<div class="mcard ${m.rate > 0 ? 'up' : m.rate < 0 ? 'dn' : ''}">
       <span class="ml">${esc(m.label)}</span><span class="mp">${esc(m.price)}</span>
-      <span class="mr">${m.rate > 0 ? '+' : ''}${m.rate}%</span></div>`).join('');
+      <span class="mr">${m.rate > 0 ? '+' : ''}${Number(m.rate).toFixed(2)}%</span></div>`).join('');
 
     const bench = BT?.benchmark;
     const benchLine = bench ? `조건을 통과한 종목을 <b>아무거나</b> 샀을 때: 단타 ${pctS(bench.short.avg, 2)} (승률 ${pctP(bench.short.win, 0)}) · 스윙 ${pctS(bench.swing.avg, 2)} (${pctP(bench.swing.win, 0)}) · 장투 ${pctS(bench.long.avg, 2)} (${pctP(bench.long.win, 0)}). <b>'시장대비'</b>는 이 값을 뺀 순수 실력이다.` : '';
